@@ -6,7 +6,7 @@ import {
 import { rootRoute } from './root';
 import { rootSearch, THEORY_DEFAULTS, type RawSearch } from './search';
 
-export const exploreFirstRoute = <TPath extends '/scales' | '/chords' | '/arpeggios' | '/intervals'>(
+export const exploreFirstRoute = <TPath extends '/scales' | '/chords' | '/arpeggios' | '/intervals' | '/progressions'>(
   path: TPath,
   component: () => React.ReactNode,
   defaultId: string,
