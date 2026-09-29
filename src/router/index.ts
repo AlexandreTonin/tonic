@@ -3,6 +3,7 @@ import { arpeggioRoute } from './arpeggio';
 import { arpeggiosRoute } from './arpeggios';
 import { chordRoute } from './chord';
 import { chordsRoute } from './chords';
+import { harmonicFieldRoute } from './harmonic-field';
 import { indexRoute } from './index-route';
 import { intervalRoute } from './interval';
 import { intervalsRoute } from './intervals';
@@ -22,6 +23,7 @@ export const router = createRouter({
     arpeggioRoute,
     intervalsRoute,
     intervalRoute,
+    harmonicFieldRoute,
     placeholderRoute,
   ]),
 });
