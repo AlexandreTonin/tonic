@@ -2,6 +2,7 @@ import { createRouter } from '@tanstack/react-router';
 import { arpeggioRoute } from './arpeggio';
 import { arpeggiosRoute } from './arpeggios';
 import { chordRoute } from './chord';
+import { circleOfFifthsRoute } from './circle-of-fifths';
 import { chordsRoute } from './chords';
 import { harmonicFieldRoute } from './harmonic-field';
 import { indexRoute } from './index-route';
@@ -30,6 +31,7 @@ export const router = createRouter({
     intervalsRoute,
     intervalRoute,
     harmonicFieldRoute,
+    circleOfFifthsRoute,
     progressionsRoute,
     progressionRoute,
     techniqueRoute,
