@@ -8,6 +8,7 @@ import { harmonicFieldRoute } from './harmonic-field';
 import { indexRoute } from './index-route';
 import { intervalRoute } from './interval';
 import { intervalsRoute } from './intervals';
+import { metronomeRoute } from './metronome';
 import { placeholderRoute } from './placeholder';
 import { progressionRoute } from './progression';
 import { progressionsRoute } from './progressions';
@@ -38,6 +39,7 @@ export const router = createRouter({
     techniqueExerciseRoute,
     rhythmsRoute,
     rhythmRoute,
+    metronomeRoute,
     placeholderRoute,
   ]),
 });
