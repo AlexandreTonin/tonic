@@ -45,7 +45,7 @@ import {
   withoutDoubleSharps,
   type LabelMode,
 } from './core';
-import { parseRhythm, rhythmFigures } from './rhythm';
+import { hitTimes, parseRhythm, rhythmFigures, scoreTaps } from './rhythm';
 
 export const ITEM_TYPES = ['scale', 'chord', 'arpeggio', 'interval'] as const;
 export type ItemType = (typeof ITEM_TYPES)[number];
@@ -292,6 +292,24 @@ export function getRhythm(id: string) {
     ...def,
     grid,
     figures: rhythmFigures(grid, def.stepsPerBeat, compound),
+  };
+}
+
+const MAX_TAP_WINDOW_MS = 150;
+
+export function scoreRhythmTest(
+  id: string,
+  { bpm, bars, taps }: { bpm: number; bars: number; taps: number[] },
+) {
+  const def = findRhythm(id);
+  if (!def) throw new Error(`Unknown rhythm ${id}`);
+  const grid = parseRhythm(def.steps, def.stepsPerBeat);
+  const hits = hitTimes(grid, def.stepsPerBeat, bpm, bars);
+  const stepMs = 60000 / bpm / def.stepsPerBeat;
+  return {
+    bpm,
+    bars,
+    ...scoreTaps(hits, taps, Math.min(stepMs / 2, MAX_TAP_WINDOW_MS)),
   };
 }
 

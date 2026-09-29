@@ -10,6 +10,8 @@ import { intervalsRoute } from './intervals';
 import { placeholderRoute } from './placeholder';
 import { progressionRoute } from './progression';
 import { progressionsRoute } from './progressions';
+import { rhythmRoute } from './rhythm';
+import { rhythmsRoute } from './rhythms';
 import { rootRoute } from './root';
 import { techniqueRoute } from './technique';
 import { techniqueExerciseRoute } from './technique-exercise';
@@ -32,6 +34,8 @@ export const router = createRouter({
     progressionRoute,
     techniqueRoute,
     techniqueExerciseRoute,
+    rhythmsRoute,
+    rhythmRoute,
     placeholderRoute,
   ]),
 });

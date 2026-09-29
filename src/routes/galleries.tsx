@@ -3,6 +3,7 @@ import {
   listChords,
   listIntervals,
   listProgressions,
+  listRhythms,
   listScales,
 } from '@/lib/theory/engine';
 import { getRouteApi, Link } from '@tanstack/react-router';
@@ -22,8 +23,9 @@ type GalleryProps = {
     | '/chords/$id'
     | '/arpeggios/$id'
     | '/intervals/$id'
-    | '/progressions/$id';
-  root: string;
+    | '/progressions/$id'
+    | '/rhythm/$id';
+  root?: string;
   onExplore: () => void;
 };
 
@@ -50,7 +52,7 @@ function CatalogGallery({ title, items, to, root, onExplore }: GalleryProps) {
                   <Link
                     to={to}
                     params={{ id: i.id }}
-                    search={{ root }}
+                    search={root ? { root } : {}}
                     className={CARD}
                   >
                     <span className="font-medium">{i.name}</span>
@@ -156,6 +158,21 @@ export function ProgressionsGallery() {
       to="/progressions/$id"
       root={root}
       onExplore={() => navigate({ to: '/progressions', search: { root } })}
+    />
+  );
+}
+
+const rhythmsApi = getRouteApi('/rhythm');
+const RHYTHM_ITEMS = listRhythms().map((r) => ({ ...r, detail: r.meter }));
+
+export function RhythmsGallery() {
+  const navigate = rhythmsApi.useNavigate();
+  return (
+    <CatalogGallery
+      title="Ritmo"
+      items={RHYTHM_ITEMS}
+      to="/rhythm/$id"
+      onExplore={() => navigate({ to: '/rhythm', search: {} })}
     />
   );
 }
