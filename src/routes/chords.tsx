@@ -1,6 +1,9 @@
 import { ToneSelect } from '@/components/audio/tone-select';
 import { ChordDiagram } from '@/components/chord-diagram/chord-diagram';
-import { Fretboard } from '@/components/fretboard/fretboard';
+import { ExportButtons } from '@/components/fretboard/export-buttons';
+import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import type { ExportLayout } from '@/lib/fretboard-export';
+import { LABEL_NAMES } from '@/lib/labels';
 import {
   CatalogSelect,
   LabelModeSelect,
@@ -20,12 +23,22 @@ import {
 import { cn } from '@/lib/utils';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { Play } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 const route = getRouteApi('/chords/$id');
 const FRETS = 22;
 const CHORDS = listChords();
 const VIEWS = { notes: 'Notas do acorde', shape: 'Forma' } as const;
+const SHAPE_LAYOUT: ExportLayout = {
+  columns: 1,
+  itemScale: 2.5,
+  printMaxWidth: '70mm',
+};
+const SHAPES_LAYOUT: ExportLayout = {
+  columns: 4,
+  itemScale: 1.5,
+  printMaxWidth: '100%',
+};
 type View = keyof typeof VIEWS;
 
 const shapeKey = (frets: (number | null)[]) =>
@@ -59,6 +72,7 @@ export function ChordPage() {
   }, [chordId, root, labelMode]);
 
   const guitar = useGuitar();
+  const shapesRef = useRef<HTMLDivElement>(null);
 
   if (!data) {
     return (
@@ -160,10 +174,25 @@ export function ChordPage() {
         </div>
 
         {positions && (
-          <Fretboard
+          <PrintableFretboard
+            title={
+              view === 'shape'
+                ? `${chord.symbol} · forma ${shapeTab}`
+                : `${chord.symbol} (${chord.name}) · notas do acorde`
+            }
+            details={`Notas: ${chord.notes.join(' ')} · Fórmula: ${chord.intervals.join(' ')} · Rótulo: ${LABEL_NAMES[labelMode]}`}
             positions={positions}
             frets={FRETS}
             barre={view === 'shape' ? shape?.barre : null}
+            exportContent={
+              view === 'shape' &&
+              shape && (
+                <div data-export-item data-caption={shapeTab}>
+                  <ChordDiagram voicing={shape} label={chord.symbol} />
+                </div>
+              )
+            }
+            exportLayout={SHAPE_LAYOUT}
             label={
               view === 'shape'
                 ? `Forma ${shapeTab} de ${chord.symbol} no braço`
@@ -174,7 +203,19 @@ export function ChordPage() {
       </div>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold tracking-tight">Formas</h2>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <h2 className="text-xl font-semibold tracking-tight">Formas</h2>
+          {voicings.length > 0 && (
+            <ExportButtons
+              target={shapesRef}
+              layout={SHAPES_LAYOUT}
+              title={`${chord.symbol} (${chord.name}) · todas as formas`}
+              details={`Notas: ${chord.notes.join(' ')} · Fórmula: ${chord.intervals.join(' ')} · Rótulo: ${LABEL_NAMES[labelMode]}`}
+              printLabel="Imprimir todas"
+              downloadLabel="Baixar todas"
+            />
+          )}
+        </div>
         {guitar.failed && (
           <p className="text-muted-foreground">
             Não foi possível carregar o som.
@@ -185,7 +226,7 @@ export function ChordPage() {
             Nenhuma forma com a tônica no baixo cabe numa mão para este acorde.
           </p>
         )}
-        <div className="flex flex-wrap gap-6">
+        <div ref={shapesRef} className="flex flex-wrap gap-6">
           {voicings.map((v) => {
             const key = shapeKey(v.frets);
             const selected = view === 'shape' && v === shape;
@@ -194,6 +235,8 @@ export function ChordPage() {
               <div key={key} className="flex flex-col items-center gap-1">
                 <button
                   type="button"
+                  data-export-item
+                  data-caption={v.frets.map((f) => f ?? 'x').join(' ')}
                   aria-pressed={selected}
                   onClick={() => setSearch({ shape: key, view: 'shape' })}
                   className={cn(

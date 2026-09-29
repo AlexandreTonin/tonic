@@ -1,5 +1,5 @@
 import { ToneSelect } from '@/components/audio/tone-select';
-import { Fretboard } from '@/components/fretboard/fretboard';
+import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { LinkRow, Related } from '@/components/theory/related';
 import { CatalogSelect, RootTabs } from '@/components/theory/theory-controls';
 import { ViewToggle } from '@/components/theory/view-toggle';
@@ -148,7 +148,9 @@ export function IntervalPage() {
         )}
       </div>
 
-      <Fretboard
+      <PrintableFretboard
+        title={`${interval.name} (${interval.label}) a partir de ${interval.root}`}
+        details={`Notas: ${interval.notes.join(' – ')} · ${interval.semitones} ${interval.semitones === 1 ? 'semitom' : 'semitons'} · Rótulo: intervalos`}
         positions={positions}
         frets={FRETS}
         label={`Braço com ${interval.notes.join(' e ')}`}

@@ -1,6 +1,7 @@
 import { ToneSelect } from '@/components/audio/tone-select';
 import { ChordDiagram } from '@/components/chord-diagram/chord-diagram';
-import { Fretboard } from '@/components/fretboard/fretboard';
+import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import { LABEL_NAMES } from '@/lib/labels';
 import { LinkRow, Related } from '@/components/theory/related';
 import {
   CatalogSelect,
@@ -321,7 +322,9 @@ export function ProgressionPage() {
           <h2 className="text-xl font-semibold tracking-tight">
             {scale.name} de {scale.root} sobre {bar.symbol}
           </h2>
-          <Fretboard
+          <PrintableFretboard
+            title={`${scale.name} de ${scale.root} sobre ${bar.symbol}`}
+            details={`${progression.name} em ${keyName} · compasso ${Math.min(current, bars.length - 1) + 1} (${bar.degree}) · Rótulo: ${LABEL_NAMES[labels]}`}
             positions={positions}
             frets={FRETS}
             label={`${scale.name} de ${scale.root} com as notas de ${bar.symbol} destacadas`}

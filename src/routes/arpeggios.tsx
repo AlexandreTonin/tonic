@@ -1,5 +1,6 @@
 import { ToneSelect } from '@/components/audio/tone-select';
-import { Fretboard } from '@/components/fretboard/fretboard';
+import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import { LABEL_NAMES } from '@/lib/labels';
 import { LinkRow, Related } from '@/components/theory/related';
 import {
   CatalogSelect,
@@ -182,7 +183,9 @@ export function ArpeggioPage() {
         )}
       </div>
 
-      <Fretboard
+      <PrintableFretboard
+        title={`Arpejo de ${arpeggio.symbol}${position ? ` · posição ${position}` : ''}${over ? ` · sobre ${over}` : ''}`}
+        details={`Notas: ${arpeggio.notes.join(' ')} · Fórmula: ${arpeggio.intervals.join(' ')} · Rótulo: ${over ? `graus sobre ${over}` : LABEL_NAMES[labels]}`}
         positions={positions}
         frets={FRETS}
         activeMidi={playingMidi}

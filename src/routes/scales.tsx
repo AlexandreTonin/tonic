@@ -1,5 +1,6 @@
 import { ToneSelect } from '@/components/audio/tone-select';
-import { Fretboard } from '@/components/fretboard/fretboard';
+import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import { LABEL_NAMES } from '@/lib/labels';
 import {
   CatalogSelect,
   LabelModeSelect,
@@ -34,8 +35,8 @@ export function ScalePage() {
   const positionCount = SCALES.find((s) => s.id === scaleId)?.positions ?? 0;
   const activePosition =
     position && position <= positionCount ? position : undefined;
-  
-    const view = useMemo(() => {
+
+  const view = useMemo(() => {
     if (!SCALES.some((s) => s.id === scaleId)) return undefined;
     return {
       scale: getScale(scaleId, root),
@@ -149,7 +150,9 @@ export function ScalePage() {
         )}
       </div>
 
-      <Fretboard
+      <PrintableFretboard
+        title={`${scale.root} ${scale.name}${activePosition ? ` · posição ${activePosition}` : ''}`}
+        details={`Notas: ${scale.notes.join(' ')} · Graus: ${scale.intervals.join(' ')} · Rótulo: ${LABEL_NAMES[labelMode]}`}
         positions={positions}
         frets={FRETS}
         activeMidi={playingMidi}

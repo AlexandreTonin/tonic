@@ -1,5 +1,5 @@
-import { NAV } from "@/components/layout/nav";
-import { useLocation } from "@tanstack/react-router";
+import { NAV } from '@/components/layout/nav';
+import { useLocation } from '@tanstack/react-router';
 
 export function Placeholder() {
   const { pathname } = useLocation();
