@@ -1,5 +1,10 @@
 import { ViewToggle } from '@/components/theory/view-toggle';
-import { listChords, listIntervals, listScales } from '@/lib/theory/engine';
+import {
+  listChords,
+  listIntervals,
+  listProgressions,
+  listScales,
+} from '@/lib/theory/engine';
 import { getRouteApi, Link } from '@tanstack/react-router';
 
 type GalleryItem = {
@@ -12,7 +17,12 @@ type GalleryItem = {
 type GalleryProps = {
   title: string;
   items: GalleryItem[];
-  to: '/scales/$id' | '/chords/$id' | '/arpeggios/$id' | '/intervals/$id';
+  to:
+    | '/scales/$id'
+    | '/chords/$id'
+    | '/arpeggios/$id'
+    | '/intervals/$id'
+    | '/progressions/$id';
   root: string;
   onExplore: () => void;
 };
@@ -126,6 +136,26 @@ export function IntervalsGallery() {
       to="/intervals/$id"
       root={root}
       onExplore={() => navigate({ to: '/intervals', search: { root } })}
+    />
+  );
+}
+
+const progressionsApi = getRouteApi('/progressions');
+const PROGRESSION_ITEMS = listProgressions().map((p) => ({
+  ...p,
+  detail: `${p.bars.length} compassos`,
+}));
+
+export function ProgressionsGallery() {
+  const { root } = progressionsApi.useSearch();
+  const navigate = progressionsApi.useNavigate();
+  return (
+    <CatalogGallery
+      title="Progressões"
+      items={PROGRESSION_ITEMS}
+      to="/progressions/$id"
+      root={root}
+      onExplore={() => navigate({ to: '/progressions', search: { root } })}
     />
   );
 }

@@ -7,6 +7,7 @@ export const pick = <T extends string>(
 ) => (options.includes(value as T) ? (value as T) : fallback);
 
 const LABELS = ['notes', 'intervals'] as const;
+export const PROGRESSION_STRUMS = [1, 2, 4] as const;
 export const THEORY_DEFAULTS = { root: 'C', labels: 'notes' } as const;
 
 export type RawSearch = {
@@ -20,6 +21,9 @@ export type RawSearch = {
   size?: string;
   dominant?: boolean;
   degree?: number;
+  bpm?: number;
+  scales?: string;
+  strums?: number;
 } & SearchSchemaInput;
 
 const PITCH_CLASS = /^[A-G][#b]?$/;
