@@ -94,6 +94,14 @@ src/
 
 Issues e pull requests são bem-vindos. Antes de mudar uma regra de teoria musical, abra uma issue explicando o caso: grafia de notas, fórmulas e graus são fáceis de errar.
 
+## Apoie o projeto
+
+O Tonic é gratuito e sempre vai ser. Se ele te ajuda a estudar, você pode apoiar o desenvolvimento:
+
+- [GitHub Sponsors](https://github.com/sponsors/alexandretonin)
+- [Buy Me a Coffee](https://buymeacoffee.com/alexandretonin)
+- Pix (chave aleatória): `24c2b679-a040-409a-83f0-3eec221ab911`
+
 ## Licença
 
 [MIT](LICENSE) © Alexandre Tonin
