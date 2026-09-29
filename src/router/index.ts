@@ -48,6 +48,8 @@ declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
     title?: string;
     description?: string;
+    item?: (id: string) => string | undefined;
+    noindex?: boolean;
   }
   interface Register {
     router: typeof router;

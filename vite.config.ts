@@ -3,10 +3,34 @@ import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig, loadEnv, type Plugin } from "vite"
 import { NAV } from "./src/components/layout/nav"
+import { EXERCISES } from "./src/lib/technique/catalog"
+import {
+  findAllChords,
+  findAllIntervals,
+  findAllProgressions,
+  findAllRhythms,
+  findAllScales,
+} from "./src/lib/theory/catalog"
+
+const DETAILS = {
+  scales: findAllScales(),
+  chords: findAllChords(),
+  arpeggios: findAllChords(),
+  intervals: findAllIntervals(),
+  progressions: findAllProgressions(),
+  rhythm: findAllRhythms(),
+  technique: EXERCISES,
+}
 
 function seo(siteUrl: string | undefined): Plugin {
   const site = siteUrl?.replace(/\/+$/, "")
-  const paths = ["/", ...NAV.flatMap((group) => group.items.map((i) => i.to))]
+  const paths = [
+    "/",
+    ...NAV.flatMap((group) => group.items.map((i) => i.to)),
+    ...Object.entries(DETAILS).flatMap(([section, items]) =>
+      items.map((i) => `/${section}/${i.id}`),
+    ),
+  ]
 
   return {
     name: "tonic-seo",

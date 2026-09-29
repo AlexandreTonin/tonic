@@ -1,3 +1,4 @@
+import { findScale } from '@/lib/theory/catalog';
 import { PAGES } from './pages';
 import { ScalePage } from '@/routes/scales';
 import { createRoute, stripSearchParams } from '@tanstack/react-router';
@@ -11,7 +12,10 @@ import {
 
 export const scaleRoute = createRoute({
   getParentRoute: () => rootRoute,
-  staticData: PAGES.scales,
+  staticData: {
+    ...PAGES.scales,
+    item: (id: string) => findScale(id)?.name,
+  },
   path: '/scales/$id',
   component: ScalePage,
   validateSearch: (search: RawSearch) => ({

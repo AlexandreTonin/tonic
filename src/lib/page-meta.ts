@@ -19,10 +19,12 @@ function headTag(selector: string, create: () => HTMLElement) {
 export function applyPageMeta({
   title,
   description,
+  noindex,
   pathname,
 }: {
   title?: string;
   description?: string;
+  noindex?: boolean;
   pathname: string;
 }) {
   document.title = title ? `${title} · ${SUFFIX}` : DEFAULT_TITLE;
@@ -31,6 +33,13 @@ export function applyPageMeta({
     meta.name = 'description';
     return meta;
   }).setAttribute('content', description ?? DEFAULT_DESCRIPTION);
+  document.head.querySelector('meta[name="robots"]')?.remove();
+  if (noindex) {
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex';
+    document.head.append(meta);
+  }
   if (!SITE_URL) return;
   headTag('link[rel="canonical"]', () => {
     const link = document.createElement('link');

@@ -1,3 +1,4 @@
+import { findChord } from '@/lib/theory/catalog';
 import { PAGES } from './pages';
 import { ChordPage } from '@/routes/chords';
 import { createRoute, stripSearchParams } from '@tanstack/react-router';
@@ -10,7 +11,10 @@ const SHAPE = /^(x|\d{1,2})(-(x|\d{1,2})){5}$/;
 
 export const chordRoute = createRoute({
   getParentRoute: () => rootRoute,
-  staticData: PAGES.chords,
+  staticData: {
+    ...PAGES.chords,
+    item: (id: string) => findChord(id)?.name,
+  },
   path: '/chords/$id',
   component: ChordPage,
   validateSearch: (search: RawSearch) => ({
