@@ -1,20 +1,20 @@
 import { ViewToggle } from '@/components/theory/view-toggle';
-import { listChords, listScales } from '@/lib/theory/engine';
+import { listChords, listIntervals, listScales } from '@/lib/theory/engine';
 import { getRouteApi, Link } from '@tanstack/react-router';
 
 type GalleryItem = {
   id: string;
   name: string;
   category: string;
-  detail: string; 
+  detail: string;
 };
 
 type GalleryProps = {
   title: string;
   items: GalleryItem[];
-  to: '/scales/$id' | '/chords/$id' | '/arpeggios/$id';
+  to: '/scales/$id' | '/chords/$id' | '/arpeggios/$id' | '/intervals/$id';
   root: string;
-  onExplore: () => void; 
+  onExplore: () => void;
 };
 
 const CARD =
@@ -106,6 +106,26 @@ export function ArpeggiosGallery() {
       to="/arpeggios/$id"
       root={root}
       onExplore={() => navigate({ to: '/arpeggios', search: { root } })}
+    />
+  );
+}
+
+const intervalsApi = getRouteApi('/intervals');
+const INTERVAL_ITEMS = listIntervals().map((i) => ({
+  ...i,
+  detail: `${i.label} · ${i.semitones} ${i.semitones === 1 ? 'semitom' : 'semitons'}`,
+}));
+
+export function IntervalsGallery() {
+  const { root } = intervalsApi.useSearch();
+  const navigate = intervalsApi.useNavigate();
+  return (
+    <CatalogGallery
+      title="Intervalos"
+      items={INTERVAL_ITEMS}
+      to="/intervals/$id"
+      root={root}
+      onExplore={() => navigate({ to: '/intervals', search: { root } })}
     />
   );
 }

@@ -4,6 +4,8 @@ import { arpeggiosRoute } from './arpeggios';
 import { chordRoute } from './chord';
 import { chordsRoute } from './chords';
 import { indexRoute } from './index-route';
+import { intervalRoute } from './interval';
+import { intervalsRoute } from './intervals';
 import { placeholderRoute } from './placeholder';
 import { rootRoute } from './root';
 import { scaleRoute } from './scale';
@@ -18,6 +20,8 @@ export const router = createRouter({
     chordRoute,
     arpeggiosRoute,
     arpeggioRoute,
+    intervalsRoute,
+    intervalRoute,
     placeholderRoute,
   ]),
 });
