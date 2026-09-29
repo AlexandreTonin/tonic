@@ -11,6 +11,8 @@ import { placeholderRoute } from './placeholder';
 import { progressionRoute } from './progression';
 import { progressionsRoute } from './progressions';
 import { rootRoute } from './root';
+import { techniqueRoute } from './technique';
+import { techniqueExerciseRoute } from './technique-exercise';
 import { scaleRoute } from './scale';
 import { scalesRoute } from './scales';
 
@@ -28,6 +30,8 @@ export const router = createRouter({
     harmonicFieldRoute,
     progressionsRoute,
     progressionRoute,
+    techniqueRoute,
+    techniqueExerciseRoute,
     placeholderRoute,
   ]),
 });

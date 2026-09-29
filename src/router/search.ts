@@ -21,6 +21,7 @@ export type RawSearch = {
   size?: string;
   dominant?: boolean;
   degree?: number;
+  category?: string;
   bpm?: number;
   scales?: string;
   strums?: number;
