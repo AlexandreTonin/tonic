@@ -2,7 +2,7 @@
 
 Teoria musical para guitarra, no braço. Gratuito e open source.
 
-**Acesse: https://tonic.xandetonin.workers.dev**
+**Acesse: https://tonic-app.com.br**
 
 O Tonic conecta teoria e prática: cada escala, acorde, arpejo, intervalo e progressão aparece no braço da guitarra, com som, e se liga aos outros itens da biblioteca. Tudo roda no navegador: não há backend, conta ou banco de dados.
 
@@ -74,7 +74,7 @@ O app abre em `http://localhost:5173`.
 O app está publicado no [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/) como site estático (`wrangler.jsonc`). Para publicar manualmente:
 
 ```bash
-VITE_SITE_URL=https://tonic.xandetonin.workers.dev npm run build
+VITE_SITE_URL=https://tonic-app.com.br npm run build
 npx wrangler deploy
 ```
 
