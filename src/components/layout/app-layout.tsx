@@ -116,8 +116,12 @@ export function AppLayout() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-12 items-center border-b px-4 md:hidden">
+        <header className="grid h-12 grid-cols-[1fr_auto_1fr] items-center border-b px-4 md:hidden">
           <SidebarTrigger aria-label="Abrir menu" />
+          <div className="flex items-center gap-2 font-semibold">
+            <AppIcon className="size-4" />
+            Tonic
+          </div>
         </header>
         <main className="min-w-0 flex-1 p-6 md:p-10">
           <Outlet />
