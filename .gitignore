@@ -1,0 +1,42 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+visualizer.html
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+yarn-debug.log*
+yarn-error.log*
+
+# testing
+/coverage
+
+# production
+/dist
+/build
+/tmp
+
+# misc
+.DS_Store
+*.exe.stackdump
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+package-lock.json
+
+.eslintcache
+*.tsbuildinfo
+
+# File formats
+*.test.jsx
+*.test.js
+*.test.tsx
+*.test.ts
+*.ttf
+*.eot
+*.woff
+*.woff2
+
