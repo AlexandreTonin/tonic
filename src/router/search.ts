@@ -25,6 +25,7 @@ export type RawSearch = {
   bpm?: number;
   scales?: string;
   strums?: number;
+  sound?: string;
 } & SearchSchemaInput;
 
 const PITCH_CLASS = /^[A-G][#b]?$/;
