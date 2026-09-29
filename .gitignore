@@ -40,3 +40,6 @@ package-lock.json
 *.woff
 *.woff2
 
+
+# Cloudflare
+.wrangler
