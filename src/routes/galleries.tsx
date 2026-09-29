@@ -1,5 +1,5 @@
 import { ViewToggle } from '@/components/theory/view-toggle';
-import { listScales } from '@/lib/theory/engine';
+import { listChords, listScales } from '@/lib/theory/engine';
 import { getRouteApi, Link } from '@tanstack/react-router';
 
 type GalleryItem = {
@@ -12,7 +12,7 @@ type GalleryItem = {
 type GalleryProps = {
   title: string;
   items: GalleryItem[];
-  to: '/scales/$id';
+  to: '/scales/$id' | '/chords/$id';
   root: string;
   onExplore: () => void; 
 };
@@ -73,6 +73,23 @@ export function ScalesGallery() {
       to="/scales/$id"
       root={root}
       onExplore={() => navigate({ to: '/scales', search: { root } })}
+    />
+  );
+}
+
+const chordsApi = getRouteApi('/chords');
+const CHORD_ITEMS = withFormula(listChords());
+
+export function ChordsGallery() {
+  const { root } = chordsApi.useSearch();
+  const navigate = chordsApi.useNavigate();
+  return (
+    <CatalogGallery
+      title="Acordes"
+      items={CHORD_ITEMS}
+      to="/chords/$id"
+      root={root}
+      onExplore={() => navigate({ to: '/chords', search: { root } })}
     />
   );
 }

@@ -1,4 +1,6 @@
 import { createRouter } from '@tanstack/react-router';
+import { chordRoute } from './chord';
+import { chordsRoute } from './chords';
 import { indexRoute } from './index-route';
 import { placeholderRoute } from './placeholder';
 import { rootRoute } from './root';
@@ -10,6 +12,8 @@ export const router = createRouter({
     indexRoute,
     scalesRoute,
     scaleRoute,
+    chordsRoute,
+    chordRoute,
     placeholderRoute,
   ]),
 });
