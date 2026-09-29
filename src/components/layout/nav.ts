@@ -9,6 +9,7 @@ import {
   Network,
   Repeat,
   Ruler,
+  Timer,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -33,6 +34,10 @@ export const NAV: NavGroup[] = [
       { to: '/technique', label: 'Técnica', icon: Dumbbell },
       { to: '/rhythm', label: 'Ritmo', icon: Drum },
     ],
+  },
+  {
+    label: 'Ferramentas',
+    items: [{ to: '/metronome', label: 'Metrônomo', icon: Timer }],
   },
 ];
 
