@@ -12,7 +12,7 @@ type GalleryItem = {
 type GalleryProps = {
   title: string;
   items: GalleryItem[];
-  to: '/scales/$id' | '/chords/$id';
+  to: '/scales/$id' | '/chords/$id' | '/arpeggios/$id';
   root: string;
   onExplore: () => void; 
 };
@@ -90,6 +90,22 @@ export function ChordsGallery() {
       to="/chords/$id"
       root={root}
       onExplore={() => navigate({ to: '/chords', search: { root } })}
+    />
+  );
+}
+
+const arpeggiosApi = getRouteApi('/arpeggios');
+
+export function ArpeggiosGallery() {
+  const { root } = arpeggiosApi.useSearch();
+  const navigate = arpeggiosApi.useNavigate();
+  return (
+    <CatalogGallery
+      title="Arpejos"
+      items={CHORD_ITEMS}
+      to="/arpeggios/$id"
+      root={root}
+      onExplore={() => navigate({ to: '/arpeggios', search: { root } })}
     />
   );
 }

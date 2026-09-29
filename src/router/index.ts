@@ -1,4 +1,6 @@
 import { createRouter } from '@tanstack/react-router';
+import { arpeggioRoute } from './arpeggio';
+import { arpeggiosRoute } from './arpeggios';
 import { chordRoute } from './chord';
 import { chordsRoute } from './chords';
 import { indexRoute } from './index-route';
@@ -14,6 +16,8 @@ export const router = createRouter({
     scaleRoute,
     chordsRoute,
     chordRoute,
+    arpeggiosRoute,
+    arpeggioRoute,
     placeholderRoute,
   ]),
 });
