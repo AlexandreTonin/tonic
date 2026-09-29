@@ -1,4 +1,4 @@
-import { Interval, Note } from 'tonal';
+import { Interval, Key, Note } from 'tonal';
 import {
   findAllChords,
   findAllIntervals,
@@ -435,4 +435,60 @@ export function getFretboard({
       ? p
       : { ...p, role: 'outside' as const },
   );
+}
+
+const CIRCLE_SIZE = 12;
+const SHARPS_SIDE = 6;
+
+const keySignature = (alteration: number) =>
+  Array.from({ length: Math.abs(alteration) }, (_, i) =>
+    alteration > 0
+      ? Note.transposeFifths('F#', i)
+      : Note.transposeFifths('Bb', -i),
+  );
+
+export function getCircleOfFifths() {
+  return Array.from({ length: CIRCLE_SIZE }, (_, position) => {
+    const major = Note.transposeFifths(
+      'C',
+      position <= SHARPS_SIDE ? position : position - CIRCLE_SIZE,
+    );
+    const key = Key.majorKey(major);
+    return {
+      position,
+      major,
+      minor: key.minorRelative,
+      alteration: key.alteration,
+    };
+  });
+}
+
+export function getCircleKey(root: string) {
+  const circle = getCircleOfFifths();
+  const index = circle.findIndex((k) => sameNote(k.major, root));
+  if (index === -1) throw new Error(`Unknown key ${root}`);
+  const at = (offset: number) =>
+    circle[(index + offset + CIRCLE_SIZE) % CIRCLE_SIZE];
+  const key = circle[index];
+  const chords = getHarmonicField({ root: key.major, size: 'triads' }).chords;
+  return {
+    ...key,
+    signature: keySignature(key.alteration),
+    majorScale: Key.majorKey(key.major).scale,
+    minorScale: Key.minorKey(key.minor).natural.scale,
+    dominant: at(1),
+    subdominant: at(-1),
+    diatonic: {
+      outer: {
+        [at(-1).position]: chords[3],
+        [key.position]: chords[0],
+        [at(1).position]: chords[4],
+      },
+      inner: {
+        [at(-1).position]: chords[1],
+        [key.position]: chords[5],
+        [at(1).position]: chords[2],
+      },
+    },
+  };
 }

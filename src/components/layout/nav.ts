@@ -1,4 +1,5 @@
 import {
+  CircleDot,
   ClefTreble,
   Drum,
   Dumbbell,
@@ -23,6 +24,11 @@ export const NAV: NavGroup[] = [
       { to: '/arpeggios', label: 'Arpejos', icon: Layers },
       { to: '/intervals', label: 'Intervalos', icon: Ruler },
       { to: '/harmonic-field', label: 'Campo harmônico', icon: Network },
+      {
+        to: '/circle-of-fifths',
+        label: 'Círculo das quintas',
+        icon: CircleDot,
+      },
       { to: '/progressions', label: 'Progressões', icon: Repeat },
       { to: '/technique', label: 'Técnica', icon: Dumbbell },
       { to: '/rhythm', label: 'Ritmo', icon: Drum },
