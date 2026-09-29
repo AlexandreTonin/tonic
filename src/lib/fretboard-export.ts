@@ -1,6 +1,9 @@
 const PNG_SCALE = 2;
 const PADDING = 32;
 const HEADER = 64;
+const FOOTER = 28;
+
+const appUrl = () => window.location.host;
 const GAP = 24;
 const CAPTION = 24;
 
@@ -122,7 +125,8 @@ p { font-size: 14px; color: ${page.muted}; margin: 0 0 16px; }
 main { display: grid; grid-template-columns: repeat(${Math.min(layout.columns, page.shots.length)}, minmax(0, 1fr)); gap: 8mm; max-width: ${layout.printMaxWidth}; }
 figure { margin: 0; text-align: center; break-inside: avoid; }
 figcaption { font-size: 13px; color: ${page.muted}; margin-top: 4px; }
-</style></head><body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(details)}</p><main>${figures}</main></body></html>`);
+footer { position: fixed; bottom: 0; left: 0; font-size: 11px; color: ${page.muted}; }
+</style></head><body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(details)}</p><main>${figures}</main><footer>${escapeHtml(appUrl())}</footer></body></html>`);
   doc.close();
   view.addEventListener('afterprint', () => frame.remove(), { once: true });
   view.focus();
@@ -179,7 +183,8 @@ export async function downloadSvgsPng(
   const detailsWidth = context.measureText(details).width;
   const gridWidth = columns * cellWidth + (columns - 1) * GAP;
   const width = Math.max(gridWidth, titleWidth, detailsWidth) + 2 * PADDING;
-  const height = HEADER + rows * cellHeight + (rows - 1) * GAP + PADDING;
+  const height =
+    HEADER + rows * cellHeight + (rows - 1) * GAP + FOOTER + PADDING;
 
   canvas.width = width * PNG_SCALE;
   canvas.height = height * PNG_SCALE;
@@ -205,6 +210,10 @@ export async function downloadSvgsPng(
       context.fillText(shot.caption, x + cellWidth / 2, y + h + 18);
     }
   });
+
+  context.textAlign = 'left';
+  context.font = `12px ${page.font}`;
+  context.fillText(appUrl(), PADDING, height - PADDING / 2);
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, 'image/png'),
