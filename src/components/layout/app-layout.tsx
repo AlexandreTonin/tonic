@@ -28,16 +28,27 @@ import { ThemeToggle } from '../ui/theme-toggle';
 
 export function AppLayout() {
   const { pathname } = useLocation();
-  const page = useMatches({
-    select: (matches) =>
-      matches.findLast((m) => m.staticData.title)?.staticData,
+  const { title, description, noindex } = useMatches({
+    select: (matches) => {
+      const leaf = matches[matches.length - 1];
+      const page = leaf?.staticData;
+      const id = (leaf?.params as { id?: string } | undefined)?.id;
+      const item = page?.item && id !== undefined ? page.item(id) : undefined;
+      return {
+        title: item ? `${item} · ${page?.title}` : page?.title,
+        description:
+          item && page?.description
+            ? `${item}. ${page.description}`
+            : page?.description,
+        noindex: !!page?.noindex || (!!page?.item && !item),
+      };
+    },
+    structuralSharing: true,
   });
-  const title = page?.title;
-  const description = page?.description;
 
   useEffect(() => {
-    applyPageMeta({ title, description, pathname });
-  }, [title, description, pathname]);
+    applyPageMeta({ title, description, noindex, pathname });
+  }, [title, description, noindex, pathname]);
   const isActive = (to: string) =>
     to === '/' ? pathname === '/' : pathname.startsWith(to);
 
