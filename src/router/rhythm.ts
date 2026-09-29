@@ -1,3 +1,4 @@
+import { PAGES } from './pages';
 import { SOUND_IDS } from '@/lib/rhythm-sounds';
 import { RhythmPage } from '@/routes/rhythm';
 import { createRoute, stripSearchParams } from '@tanstack/react-router';
@@ -8,6 +9,7 @@ const RHYTHM_DEFAULTS = { bpm: 80, sound: 'muted' } as const;
 
 export const rhythmRoute = createRoute({
   getParentRoute: () => rootRoute,
+  staticData: PAGES.rhythm,
   path: '/rhythm/$id',
   component: RhythmPage,
   validateSearch: (search: RawSearch) => {

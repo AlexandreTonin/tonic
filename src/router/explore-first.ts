@@ -6,13 +6,23 @@ import {
 import { rootRoute } from './root';
 import { rootSearch, THEORY_DEFAULTS, type RawSearch } from './search';
 
-export const exploreFirstRoute = <TPath extends '/scales' | '/chords' | '/arpeggios' | '/intervals' | '/progressions' | '/rhythm'>(
+export const exploreFirstRoute = <
+  TPath extends
+    | '/scales'
+    | '/chords'
+    | '/arpeggios'
+    | '/intervals'
+    | '/progressions'
+    | '/rhythm',
+>(
   path: TPath,
   component: () => React.ReactNode,
   defaultId: string,
+  page: { title: string; description: string },
 ) =>
   createRoute({
     getParentRoute: () => rootRoute,
+    staticData: page,
     path,
     component,
     validateSearch: (search: RawSearch) => ({

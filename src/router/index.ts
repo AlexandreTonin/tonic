@@ -45,6 +45,10 @@ export const router = createRouter({
 });
 
 declare module '@tanstack/react-router' {
+  interface StaticDataRouteOption {
+    title?: string;
+    description?: string;
+  }
   interface Register {
     router: typeof router;
   }

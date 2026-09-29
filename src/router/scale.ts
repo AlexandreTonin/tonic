@@ -1,3 +1,4 @@
+import { PAGES } from './pages';
 import { ScalePage } from '@/routes/scales';
 import { createRoute, stripSearchParams } from '@tanstack/react-router';
 import { rootRoute } from './root';
@@ -10,6 +11,7 @@ import {
 
 export const scaleRoute = createRoute({
   getParentRoute: () => rootRoute,
+  staticData: PAGES.scales,
   path: '/scales/$id',
   component: ScalePage,
   validateSearch: (search: RawSearch) => ({

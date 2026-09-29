@@ -1,3 +1,4 @@
+import { PAGES } from './pages';
 import { ProgressionPage } from '@/routes/progressions';
 import { createRoute, stripSearchParams } from '@tanstack/react-router';
 import { rootRoute } from './root';
@@ -19,6 +20,7 @@ const PROGRESSION_DEFAULTS = {
 
 export const progressionRoute = createRoute({
   getParentRoute: () => rootRoute,
+  staticData: PAGES.progressions,
   path: '/progressions/$id',
   component: ProgressionPage,
   validateSearch: (search: RawSearch) => {
