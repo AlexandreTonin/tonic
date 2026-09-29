@@ -1,6 +1,6 @@
-import { DOT_STYLE } from "@/components/fretboard/dot-style";
-import type { Barre, FretPosition } from "@/lib/theory/core";
-import { cn } from "@/lib/utils";
+import { DOT_STYLE } from '@/components/fretboard/dot-style';
+import type { Barre, FretPosition } from '@/lib/theory/core';
+import { cn } from '@/lib/utils';
 
 const STRINGS = 6;
 const OPEN_W = 40;
@@ -40,7 +40,7 @@ export function Fretboard({
   const inlays = Array.from({ length: frets }, (_, i) => i + 1);
 
   return (
-    <div className={cn("overflow-x-auto", className)}>
+    <div className={cn('overflow-x-auto', className)}>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="w-full min-w-[640px] tabular-nums"
@@ -117,7 +117,9 @@ export function Fretboard({
             x={fretX(barre.fret) - DOT_R}
             y={stringY(barre.toString) - DOT_R}
             width={2 * DOT_R}
-            height={stringY(barre.fromString) - stringY(barre.toString) + 2 * DOT_R}
+            height={
+              stringY(barre.fromString) - stringY(barre.toString) + 2 * DOT_R
+            }
             rx={DOT_R}
             fill="var(--fret-chord-tone)"
           />
@@ -127,7 +129,7 @@ export function Fretboard({
           const style = DOT_STYLE[p.role];
           return (
             <g key={`${p.string}-${p.fret}`}>
-              {p.midi === activeMidi && p.role !== "outside" && (
+              {p.midi === activeMidi && p.role !== 'outside' && (
                 <circle
                   key={activeMidi}
                   cx={fretX(p.fret)}
