@@ -71,7 +71,7 @@ O app abre em `http://localhost:5173`.
 
 ### Publicando
 
-O app está publicado no [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/) como site estático (`wrangler.jsonc`). Para publicar manualmente:
+O app está publicado no [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/) como site estático (`wrangler.jsonc`). O [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/) faz o build e o deploy automaticamente a cada push na `main`, com `VITE_SITE_URL` definida nas variáveis de build. Para publicar manualmente:
 
 ```bash
 VITE_SITE_URL=https://tonic-app.com.br npm run build
