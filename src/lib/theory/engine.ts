@@ -330,7 +330,7 @@ export function getArpeggio(id: string, root: string) {
   return {
     ...chord,
     midi: scaleOctaveMidis(chord.notes),
-    pentatonic: `${boxes}-pentatonic`,
+    pentatonic: `${boxes}-pentatonic` as const,
     positions: POSITION_COUNT,
   };
 }
