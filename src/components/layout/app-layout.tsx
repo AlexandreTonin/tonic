@@ -13,11 +13,23 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Link, Outlet, useLocation } from '@tanstack/react-router';
+import { applyPageMeta } from '@/lib/page-meta';
+import { Link, Outlet, useLocation, useMatches } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { ThemeToggle } from '../ui/theme-toggle';
 
 export function AppLayout() {
   const { pathname } = useLocation();
+  const page = useMatches({
+    select: (matches) =>
+      matches.findLast((m) => m.staticData.title)?.staticData,
+  });
+  const title = page?.title;
+  const description = page?.description;
+
+  useEffect(() => {
+    applyPageMeta({ title, description, pathname });
+  }, [title, description, pathname]);
   const isActive = (to: string) =>
     to === '/' ? pathname === '/' : pathname.startsWith(to);
 

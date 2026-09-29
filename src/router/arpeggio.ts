@@ -1,3 +1,4 @@
+import { PAGES } from './pages';
 import { ArpeggioPage } from '@/routes/arpeggios';
 import { createRoute, stripSearchParams } from '@tanstack/react-router';
 import { rootRoute } from './root';
@@ -12,6 +13,7 @@ const CHORD_SYMBOL = /^[A-G][#b]?[\w#]{0,12}$/;
 
 export const arpeggioRoute = createRoute({
   getParentRoute: () => rootRoute,
+  staticData: PAGES.arpeggios,
   path: '/arpeggios/$id',
   component: ArpeggioPage,
   validateSearch: (search: RawSearch) => ({
