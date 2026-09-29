@@ -1,4 +1,4 @@
-import { Fretboard } from '@/components/fretboard/fretboard';
+import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { LinkRow, Related } from '@/components/theory/related';
 import { RootTabs } from '@/components/theory/theory-controls';
 import { Label } from '@/components/ui/label';
@@ -128,7 +128,9 @@ export function HarmonicFieldPage() {
         <h2 className="text-xl font-semibold tracking-tight">
           {chord.symbol} em graus de {keyName}
         </h2>
-        <Fretboard
+        <PrintableFretboard
+          title={`${chord.symbol} em graus de ${keyName}`}
+          details={`${chord.degree} · Notas: ${chord.notes.join(' ')} · Campo harmônico de ${keyName} (${size === 'triads' ? 'tríades' : 'tétrades'}) · Rótulo: graus`}
           positions={positions}
           frets={FRETS}
           label={`Braço com ${chord.symbol} em graus de ${keyName}`}
