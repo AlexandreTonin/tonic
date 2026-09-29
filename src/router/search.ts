@@ -15,6 +15,7 @@ export type RawSearch = {
   position?: number;
   view?: string;
   shape?: string;
+  over?: string;
 } & SearchSchemaInput;
 
 const PITCH_CLASS = /^[A-G][#b]?$/;
