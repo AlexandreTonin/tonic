@@ -42,3 +42,7 @@ export const NAV: NavGroup[] = [
 ];
 
 export const APP_ICON = ClefTreble;
+
+export const REPO_URL = 'https://github.com/alexandretonin/tonic';
+
+export const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/alexandretonin';

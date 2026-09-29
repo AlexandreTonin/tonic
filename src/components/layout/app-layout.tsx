@@ -1,7 +1,14 @@
-import { APP_ICON as AppIcon, NAV } from '@/components/layout/nav';
+import { GithubIcon } from '@/components/layout/github-icon';
+import {
+  APP_ICON as AppIcon,
+  BUY_ME_A_COFFEE_URL,
+  NAV,
+  REPO_URL,
+} from '@/components/layout/nav';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -15,6 +22,7 @@ import {
 } from '@/components/ui/sidebar';
 import { applyPageMeta } from '@/lib/page-meta';
 import { Link, Outlet, useLocation, useMatches } from '@tanstack/react-router';
+import { Coffee } from 'lucide-react';
 import { useEffect } from 'react';
 import { ThemeToggle } from '../ui/theme-toggle';
 
@@ -69,6 +77,43 @@ export function AppLayout() {
             </SidebarGroup>
           ))}
         </SidebarContent>
+        <SidebarFooter className="pb-6">
+          <SidebarGroup className="p-0">
+            <SidebarGroupLabel>Apoie o projeto</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={
+                      <a
+                        href={BUY_ME_A_COFFEE_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    }
+                  >
+                    <Coffee />
+                    <span>Buy Me a Coffee</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={
+                      <a
+                        href={REPO_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    }
+                  >
+                    <GithubIcon />
+                    <span>GitHub</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="flex h-12 items-center border-b px-4 md:hidden">
