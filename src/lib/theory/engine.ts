@@ -25,6 +25,7 @@ import {
   harmonicField,
   harmonicFunction,
   intervalLabel,
+  openMidis,
   invertInterval,
   parseContext,
   parseDegree,
@@ -42,9 +43,11 @@ import {
   spellScale,
   spellSymmetric,
   superimpositions,
+  TUNINGS,
   withoutDoubleSharps,
   type LabelMode,
 } from './core';
+import { generateLick, type PoolNote, seededRandom } from './lick';
 import { hitTimes, parseRhythm, rhythmFigures, scoreTaps } from './rhythm';
 
 export const ITEM_TYPES = ['scale', 'chord', 'arpeggio', 'interval'] as const;
@@ -434,6 +437,101 @@ export function getFretboard({
     inside.has(`${p.string}:${p.fret}`)
       ? p
       : { ...p, role: 'outside' as const },
+  );
+}
+
+export const LICK_SCALES = [
+  'minor-pentatonic',
+  'major-pentatonic',
+  'blues',
+  'major-blues',
+];
+
+const BLUE_NOTES = {
+  minor: { degree: 'b5', interval: '5d', below: '4' },
+  major: { degree: 'b3', interval: '3m', below: '2' },
+};
+
+export function getLick(
+  id: string,
+  root: string,
+  position: number,
+  bars: number,
+  seed: string,
+  options?: { style?: string; easy?: boolean; span?: boolean },
+) {
+  const def = findScale(id);
+  if (!def?.boxes || !LICK_SCALES.includes(id)) {
+    throw new Error(`No licks for scale ${id}`);
+  }
+  const scale = getScale(id, root);
+  const tuning = TUNINGS.standard;
+  const open = openMidis(tuning);
+  const box = pentatonicBox(scale.root, def.boxes, position, tuning);
+  const next = pentatonicBox(
+    scale.root,
+    def.boxes,
+    (position % POSITION_COUNT) + 1,
+    tuning,
+  );
+  const shift = next[0].lo < box[0].lo ? 12 : 0;
+  const toNote = (key: string) => {
+    const [string, fret] = key.split(':').map(Number);
+    const midi = open[tuning.length - string] + fret;
+    const i = scale.notes.findIndex((n) => Note.chroma(n) === midi % 12);
+    return {
+      string,
+      fret,
+      midi,
+      note: scale.notes[i],
+      degree: scale.intervals[i],
+    };
+  };
+  const low = [...scalePositionFrets(scale.notes, box, tuning)].map(toNote);
+  const high = options?.span
+    ? [
+        ...scalePositionFrets(
+          scale.notes,
+          next.map(({ lo, hi }) => ({ lo: lo + shift, hi: hi + shift })),
+          tuning,
+        ),
+      ].map(toNote)
+    : [];
+  const split = high.length
+    ? [...low, ...high].map((n) => n.midi).sort((a, b) => a - b)[
+        Math.floor((low.length + high.length) / 2)
+      ]
+    : Infinity;
+  const pool: PoolNote[] = [
+    ...high.filter((n) => n.midi >= split),
+    ...low,
+    ...high,
+  ]
+    .filter((n, i, all) => all.findIndex((m) => m.midi === n.midi) === i)
+    .sort((a, b) => a.midi - b.midi);
+  const blue = BLUE_NOTES[def.boxes];
+  const inScale = scale.intervals.includes(blue.degree);
+  const marked = pool.map((n) =>
+    inScale && n.degree === blue.degree ? { ...n, blue: true } : n,
+  );
+  const passing: PoolNote[] = inScale
+    ? []
+    : pool
+        .filter((n) => n.degree === blue.below)
+        .map((n) => ({
+          ...n,
+          fret: n.fret + 1,
+          midi: n.midi + 1,
+          note: Note.transpose(scale.root, blue.interval),
+          degree: blue.degree,
+          blue: true,
+          passing: true,
+        }));
+  return generateLick(
+    [...marked, ...passing].sort((a, b) => a.midi - b.midi),
+    bars,
+    seededRandom(seed),
+    { ...options, climb: options?.span },
   );
 }
 
