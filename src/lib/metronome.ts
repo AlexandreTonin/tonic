@@ -1,4 +1,5 @@
 import type { Accent, ClickSound } from '@/lib/clicks';
+import { read, write } from '@/lib/storage';
 
 export const METERS = [
   '2/4',
@@ -122,23 +123,6 @@ const isSettings = (value: unknown): value is Partial<MetronomeSettings> => {
     saved.accents?.length === BEATS[saved.meter]
   );
 };
-
-function read(key: string): unknown {
-  try {
-    return JSON.parse(localStorage.getItem(key) ?? 'null');
-  } catch {
-    return null;
-  }
-}
-
-function write(key: string, value: unknown) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export function loadLastSettings(): MetronomeSettings {
   const saved = read(LAST_KEY);
