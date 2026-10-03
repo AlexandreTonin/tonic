@@ -101,23 +101,19 @@ export function LabelModeSelect({
 }: ControlProps<Exclude<LabelMode, 'degrees'>>) {
   return (
     <div className="flex items-center gap-2">
-      <Label htmlFor={id}>Rótulo</Label>
-      <Select
+      <Label id={`${id}-label`}>Rótulo</Label>
+      <Tabs
         value={value}
-        items={LABEL_MODES}
-        onValueChange={(v) => v && onChange(v)}
+        onValueChange={(v: Exclude<LabelMode, 'degrees'>) => onChange(v)}
       >
-        <SelectTrigger id={id}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
+        <TabsList aria-labelledby={`${id}-label`}>
           {Object.entries(LABEL_MODES).map(([v, label]) => (
-            <SelectItem key={v} value={v}>
+            <TabsTrigger key={v} value={v} className="px-3">
               {label}
-            </SelectItem>
+            </TabsTrigger>
           ))}
-        </SelectContent>
-      </Select>
+        </TabsList>
+      </Tabs>
     </div>
   );
 }

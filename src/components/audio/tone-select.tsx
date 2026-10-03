@@ -13,7 +13,7 @@ export function ToneSelect({ id }: { id: string }) {
   const [tone, setTone] = useTone();
   return (
     <div className="flex items-center gap-2">
-      <Label htmlFor={id}>Tom</Label>
+      <Label htmlFor={id}>Timbre</Label>
       <Select
         value={tone}
         items={TONE_LABELS}
