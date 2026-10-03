@@ -19,11 +19,12 @@ export type LoopBar = BackingChord & { strum: number[] };
 
 type Loop = {
   bars: LoopBar[];
-  bpm: number;
+  bpm: number | ((beat: number) => number);
   beats: number;
   strums: number;
   groove: Groove;
   muted: Set<Track>;
+  onBeat?: (beat: number, time: number, guitar: Instrument | null) => void;
 };
 
 type Instrument = Awaited<ReturnType<typeof loadSoundfont>>;
@@ -58,6 +59,7 @@ export function useProgressionPlayer({
   strums,
   groove,
   muted,
+  onBeat,
 }: Loop) {
   const band = useRef<Band>({
     guitar: null,
@@ -78,8 +80,9 @@ export function useProgressionPlayer({
       if (index < 0) return;
       const bar = bars[index];
       const beatInBar = beat % beats;
-      const beatLength = 60 / bpm;
+      const beatLength = 60 / (typeof bpm === 'function' ? bpm(beat) : bpm);
       const { guitar, bass, piano, drums } = band.current;
+      onBeat?.(beat, time, guitar);
 
       const beatsPerStrum = beats / strums;
       if (!muted.has('guitar') && beatInBar % beatsPerStrum === 0) {
