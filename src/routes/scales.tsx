@@ -1,4 +1,4 @@
-import { ToneSelect } from '@/components/audio/tone-select';
+import { ToneMenu } from '@/components/audio/tone-select';
 import { ExportButtons } from '@/components/fretboard/export-buttons';
 import { Fretboard } from '@/components/fretboard/fretboard';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
@@ -6,7 +6,6 @@ import { TabSvg } from '@/components/fretboard/tab-svg';
 import { LABEL_NAMES } from '@/lib/labels';
 import {
   CatalogSelect,
-  LabelModeSelect,
   PositionTabs,
   RootTabs,
 } from '@/components/theory/theory-controls';
@@ -25,13 +24,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { audioContext, startNote, useGuitar } from '@/hooks/use-guitar';
 import { useProgressionPlayer } from '@/hooks/use-progression-player';
@@ -61,13 +64,17 @@ import {
 import { cn } from '@/lib/utils';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import {
-  Ellipsis,
+  ChevronDown,
+  Drum,
   Eye,
+  Gauge,
   Play,
+  Repeat,
   Shuffle,
   SlidersHorizontal,
   Square,
   Star,
+  Type,
   X,
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
@@ -405,78 +412,117 @@ export function ScalePage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-6">
-        <RootTabs
-          id="scale-root"
-          value={root}
-          onChange={(root) => {
-            stopLoop();
-            setSearch({ root });
-          }}
-        />
-        <CatalogSelect
-          id="scale-id"
-          label="Escala"
-          items={SCALES}
-          value={scaleId}
-          onChange={(id) => {
-            stopLoop();
-            navigate({ to: '/scales/$id', params: { id }, search });
-          }}
-        />
-        <LabelModeSelect
-          id="scale-label-mode"
-          value={labelMode}
-          onChange={(labels) => setSearch({ labels })}
-        />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-6">
-        {positionCount > 0 && (
-          <PositionTabs
-            id="scale-position"
-            count={positionCount}
-            value={activePosition}
-            onChange={(position) => {
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <CatalogSelect
+            id="scale-id"
+            label="Escala"
+            items={SCALES}
+            value={scaleId}
+            onChange={(id) => {
               stopLoop();
-              setSearch({ position });
+              navigate({ to: '/scales/$id', params: { id }, search });
             }}
           />
-        )}
-        <Button
-          variant="outline"
-          disabled={!scaleMidis.length || guitar.loading}
-          onClick={() => guitar.upAndDown(scaleMidis, setPlayingMidi)}
-        >
-          <Play data-icon="inline-start" />
-          {guitar.loading ? 'Carregando som…' : 'Tocar escala'}
-        </Button>
-        <ToneSelect id="scale-tone" />
-        {currentLick && !answerHidden && (
-          <div className="flex items-center gap-2">
-            <Switch
-              id="lick-only"
-              checked={lickOnly}
-              onCheckedChange={setLickOnly}
-            />
-            <Label htmlFor="lick-only">Só as notas do lick</Label>
-          </div>
-        )}
-        {guitar.failed && (
-          <span className="text-sm text-muted-foreground">
-            Não foi possível carregar o som.
-          </span>
-        )}
-      </div>
+          <RootTabs
+            id="scale-root"
+            value={root}
+            onChange={(root) => {
+              stopLoop();
+              setSearch({ root });
+            }}
+          />
+        </div>
 
-      <PrintableFretboard
-        title={`${scale.root} ${scale.name}${activePosition ? ` · posição ${activePosition}` : ''}`}
-        details={`Notas: ${scale.notes.join(' ')} · Graus: ${scale.intervals.join(' ')} · Rótulo: ${LABEL_NAMES[labelMode]}`}
-        positions={boardPositions}
-        frets={FRETS}
-        activeMidi={answerHidden ? null : playingMidi}
-        label={`Braço com ${scale.root} ${scale.name}${activePosition ? `, posição ${activePosition}` : ''}`}
-      />
+        <PrintableFretboard
+          toolbar={
+            positionCount > 0 && (
+              <PositionTabs
+                id="scale-position"
+                count={positionCount}
+                value={activePosition}
+                onChange={(position) => {
+                  stopLoop();
+                  setSearch({ position });
+                }}
+              />
+            )
+          }
+          actions={
+            <>
+              {guitar.failed && (
+                <span role="status" className="text-sm text-muted-foreground">
+                  Não foi possível carregar o som.
+                </span>
+              )}
+              <Button
+                variant="outline"
+                disabled={!scaleMidis.length || guitar.loading}
+                onClick={() => guitar.upAndDown(scaleMidis, setPlayingMidi)}
+              >
+                <Play data-icon="inline-start" />
+                {guitar.loading ? 'Carregando som…' : 'Tocar'}
+              </Button>
+              <ToneMenu />
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      aria-label={`Exibição: ${LABEL_NAMES[labelMode]}`}
+                    />
+                  }
+                >
+                  <Type data-icon="inline-start" />
+                  <span className="capitalize">{LABEL_NAMES[labelMode]}</span>
+                  <ChevronDown
+                    data-icon="inline-end"
+                    className="text-muted-foreground"
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-auto min-w-56">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Rótulo das notas</DropdownMenuLabel>
+                    <DropdownMenuRadioGroup
+                      value={labelMode}
+                      onValueChange={(labels: typeof labelMode) =>
+                        setSearch({ labels })
+                      }
+                    >
+                      <DropdownMenuRadioItem value="notes">
+                        Notas
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="intervals">
+                        Intervalos
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
+                  {currentLick && !answerHidden && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>Lick</DropdownMenuLabel>
+                        <DropdownMenuCheckboxItem
+                          checked={lickOnly}
+                          onCheckedChange={setLickOnly}
+                        >
+                          Só as notas do lick
+                        </DropdownMenuCheckboxItem>
+                      </DropdownMenuGroup>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          }
+          title={`${scale.root} ${scale.name}${activePosition ? ` · posição ${activePosition}` : ''}`}
+          details={`Notas: ${scale.notes.join(' ')} · Graus: ${scale.intervals.join(' ')} · Rótulo: ${LABEL_NAMES[labelMode]}`}
+          positions={boardPositions}
+          frets={FRETS}
+          activeMidi={answerHidden ? null : playingMidi}
+          label={`Braço com ${scale.root} ${scale.name}${activePosition ? `, posição ${activePosition}` : ''}`}
+        />
+      </div>
 
       {LICK_SCALES.includes(scaleId) && (
         <section className="flex flex-col gap-6">
@@ -491,187 +537,84 @@ export function ScalePage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <div className="flex items-center gap-2">
-              <Button
-                disabled={guitar.loading || backing.loading}
-                onClick={generateLick}
-              >
-                <Shuffle data-icon="inline-start" />
-                Gerar lick
-              </Button>
-              {lickPlaying ? (
-                <Button variant="outline" onClick={stopLoop}>
-                  <Square data-icon="inline-start" />
-                  Parar
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  disabled={!currentLick || guitar.loading || backing.loading}
-                  onClick={() => currentLick && startLick(currentLick)}
-                >
-                  <Play data-icon="inline-start" />
-                  {backing.loading ? 'Carregando base…' : 'Tocar'}
-                </Button>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <Label htmlFor="lick-style">Estilo</Label>
-              <Select
-                value={lickStyle ?? AUTO_STYLE}
-                items={STYLE_NAMES}
-                onValueChange={(style) =>
-                  style &&
-                  setSearch({
-                    style: style === AUTO_STYLE ? undefined : style,
-                  })
-                }
-              >
-                <SelectTrigger id="lick-style" className="min-w-36">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {STYLE_OPTIONS.map((style) => (
-                    <SelectItem key={style} value={style}>
-                      {STYLE_NAMES[style]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <ChoiceTabs
-              id="lick-bars"
-              label="Compassos"
-              options={LICK_BARS}
-              value={bars}
-              onChange={(bars) => setSearch({ bars })}
-            />
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="ghost" />}>
-                <SlidersHorizontal data-icon="inline-start" />
-                Ajustes
-                {(easy || span) && (
-                  <span className="text-muted-foreground tabular-nums">
-                    ({Number(easy) + Number(span)})
-                  </span>
-                )}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-auto min-w-64">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Como gerar</DropdownMenuLabel>
-                  <DropdownMenuCheckboxItem
-                    checked={easy}
-                    onCheckedChange={(easy) => setSearch({ easy })}
-                  >
-                    Modo iniciante
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={span}
-                    onCheckedChange={(span) => setSearch({ span })}
-                  >
-                    Atravessar para a posição {(lickPosition % 5) + 1}
-                  </DropdownMenuCheckboxItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <div className="flex w-fit max-w-full flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border px-4 py-3">
-            <ChoiceTabs
-              id="lick-bpm"
-              label="BPM"
-              options={LICK_TEMPOS}
-              value={lickBpm}
-              onChange={(bpm) => {
-                setLickBpm(bpm);
-                if (guitar.looping && currentLick) playLick(currentLick, bpm);
-              }}
-            />
-            <div className="flex items-center gap-2">
-              <Switch
-                id="lick-backing"
-                checked={withBacking}
-                onCheckedChange={(on) => {
-                  stopLoop();
-                  setWithBacking(on);
-                }}
-              />
-              <Label htmlFor="lick-backing">Base de blues ({vamp.root}7)</Label>
-            </div>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <div className="flex items-center gap-2">
-                <Switch
-                  id="lick-loop"
-                  checked={withBacking || lickLoop}
-                  disabled={withBacking}
-                  onCheckedChange={(loop) => {
-                    setLickLoop(loop);
-                    if (!loop) stopLoop();
-                  }}
-                />
-                <Label htmlFor="lick-loop">Loop</Label>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Mais opções de reprodução"
-                    />
+                <Label htmlFor="lick-style">Estilo</Label>
+                <Select
+                  value={lickStyle ?? AUTO_STYLE}
+                  items={STYLE_NAMES}
+                  onValueChange={(style) =>
+                    style &&
+                    setSearch({
+                      style: style === AUTO_STYLE ? undefined : style,
+                    })
                   }
                 >
-                  <Ellipsis />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-auto min-w-64">
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>Antes de tocar</DropdownMenuLabel>
-                    <DropdownMenuCheckboxItem
-                      checked={withBacking || countIn}
-                      disabled={withBacking}
-                      onCheckedChange={setCountIn}
-                    >
-                      Contagem de 1 compasso
-                    </DropdownMenuCheckboxItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>
-                      Acelerar a cada volta
-                      {!(lickLoop || withBacking) && ' (com loop ou base)'}
-                    </DropdownMenuLabel>
-                    <DropdownMenuRadioGroup
-                      value={accelerate}
-                      onValueChange={(step: number) => setAccelerate(step)}
-                    >
-                      {ACCELERATE_STEPS.map((step) => (
-                        <DropdownMenuRadioItem
-                          key={step}
-                          value={step}
-                          disabled={!(lickLoop || withBacking)}
-                        >
-                          {step ? `+${step} BPM` : 'Manter o andamento'}
-                        </DropdownMenuRadioItem>
-                      ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  <SelectTrigger id="lick-style" className="min-w-36">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STYLE_OPTIONS.map((style) => (
+                      <SelectItem key={style} value={style}>
+                        {STYLE_NAMES[style]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <ChoiceTabs
+                id="lick-bars"
+                label="Compassos"
+                options={LICK_BARS}
+                value={bars}
+                onChange={(bars) => setSearch({ bars })}
+              />
+              <div className="flex items-center gap-1">
+                <DropdownMenu>
+                  <DropdownMenuTrigger render={<Button variant="ghost" />}>
+                    <SlidersHorizontal data-icon="inline-start" />
+                    Ajustes
+                    {(easy || span) && (
+                      <span className="text-muted-foreground tabular-nums">
+                        ({Number(easy) + Number(span)})
+                      </span>
+                    )}
+                    <ChevronDown
+                      data-icon="inline-end"
+                      className="text-muted-foreground"
+                    />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-auto min-w-64">
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>Como gerar</DropdownMenuLabel>
+                      <DropdownMenuCheckboxItem
+                        checked={easy}
+                        onCheckedChange={(easy) => setSearch({ easy })}
+                      >
+                        Modo iniciante
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={span}
+                        onCheckedChange={(span) => setSearch({ span })}
+                      >
+                        Atravessar para a posição {(lickPosition % 5) + 1}
+                      </DropdownMenuCheckboxItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button
+                  disabled={guitar.loading || backing.loading}
+                  onClick={generateLick}
+                >
+                  <Shuffle data-icon="inline-start" />
+                  Gerar lick
+                </Button>
+              </div>
             </div>
-            <span
-              aria-live="polite"
-              className="text-sm text-muted-foreground tabular-nums"
-            >
-              {lickPlaying && accelerate > 0 && playingBpm
-                ? `Tocando a ${playingBpm} BPM`
-                : ''}
-            </span>
-          </div>
 
-          {currentLick && (
             <div className="flex flex-col gap-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
                 <Tabs
                   value={lickView}
                   onValueChange={(view: LickView) => setLickView(view)}
@@ -684,33 +627,218 @@ export function ScalePage() {
                     ))}
                   </TabsList>
                 </Tabs>
-                {!answerHidden && (
-                  <div className="flex flex-wrap items-center gap-2">
-                    {favorite && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        aria-pressed={saved}
-                        onClick={() => setFavorites(toggleFavorite(favorite))}
-                      >
-                        <Star
-                          data-icon="inline-start"
-                          className={cn(saved && 'fill-current')}
+                <div className="flex flex-wrap items-center gap-1">
+                  <span
+                    aria-live="polite"
+                    className="text-sm text-muted-foreground tabular-nums"
+                  >
+                    {lickPlaying && accelerate > 0 && playingBpm
+                      ? `Tocando a ${playingBpm} BPM`
+                      : ''}
+                  </span>
+                  {lickPlaying ? (
+                    <Button variant="outline" onClick={stopLoop}>
+                      <Square data-icon="inline-start" />
+                      Parar
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      disabled={
+                        !currentLick || guitar.loading || backing.loading
+                      }
+                      onClick={() => currentLick && startLick(currentLick)}
+                    >
+                      <Play data-icon="inline-start" />
+                      {backing.loading ? 'Carregando base…' : 'Tocar'}
+                    </Button>
+                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          aria-label={`Andamento: ${lickBpm} BPM`}
                         />
-                        {saved ? 'Salvo' : 'Salvar'}
-                      </Button>
-                    )}
-                    <ExportButtons
-                      target={lickExport}
-                      layout={FRETBOARD_LAYOUT}
-                      appendix={appendix}
-                      title={`Lick em ${scale.root} ${scale.name} · posição ${lickPosition}`}
-                      details={`Estilo: ${currentLick.style} · Forma: ${currentLick.form} · ${currentLick.bars.length} compasso${currentLick.bars.length > 1 ? 's' : ''} · ${lickBpm} BPM`}
-                    />
-                  </div>
-                )}
+                      }
+                    >
+                      <Gauge data-icon="inline-start" />
+                      <span className="tabular-nums">{lickBpm} BPM</span>
+                      <ChevronDown
+                        data-icon="inline-end"
+                        className="text-muted-foreground"
+                      />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-auto min-w-64"
+                    >
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>Andamento</DropdownMenuLabel>
+                        <DropdownMenuRadioGroup
+                          value={lickBpm}
+                          onValueChange={(bpm: number) => {
+                            setLickBpm(bpm);
+                            if (guitar.looping && currentLick)
+                              playLick(currentLick, bpm);
+                          }}
+                        >
+                          {LICK_TEMPOS.map((bpm) => (
+                            <DropdownMenuRadioItem key={bpm} value={bpm}>
+                              {bpm} BPM
+                            </DropdownMenuRadioItem>
+                          ))}
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>
+                          Acelerar a cada volta
+                          {!(lickLoop || withBacking) && ' (com loop ou base)'}
+                        </DropdownMenuLabel>
+                        <DropdownMenuRadioGroup
+                          value={accelerate}
+                          onValueChange={(step: number) => setAccelerate(step)}
+                        >
+                          {ACCELERATE_STEPS.map((step) => (
+                            <DropdownMenuRadioItem
+                              key={step}
+                              value={step}
+                              disabled={!(lickLoop || withBacking)}
+                            >
+                              {step ? `+${step} BPM` : 'Manter o andamento'}
+                            </DropdownMenuRadioItem>
+                          ))}
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          aria-label={`Acompanhamento: ${withBacking ? `base de blues ${vamp.root}7` : 'sem base'}`}
+                        />
+                      }
+                    >
+                      <Drum data-icon="inline-start" />
+                      {withBacking ? `Base ${vamp.root}7` : 'Sem base'}
+                      <ChevronDown
+                        data-icon="inline-end"
+                        className="text-muted-foreground"
+                      />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-auto min-w-64"
+                    >
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>Acompanhamento</DropdownMenuLabel>
+                        <DropdownMenuRadioGroup
+                          value={withBacking}
+                          onValueChange={(on: boolean) => {
+                            stopLoop();
+                            setWithBacking(on);
+                          }}
+                        >
+                          <DropdownMenuRadioItem value={false}>
+                            Sem base
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value={true}>
+                            Base de blues ({vamp.root}7)
+                          </DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          aria-label={`Repetição: ${withBacking || lickLoop ? 'em loop' : 'uma vez'}${!withBacking && countIn ? ', com contagem' : ''}`}
+                        />
+                      }
+                    >
+                      <Repeat data-icon="inline-start" />
+                      {withBacking || lickLoop ? 'Loop' : 'Uma vez'}
+                      {!withBacking && countIn && (
+                        <span className="text-muted-foreground">
+                          · Contagem
+                        </span>
+                      )}
+                      <ChevronDown
+                        data-icon="inline-end"
+                        className="text-muted-foreground"
+                      />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-auto min-w-64"
+                    >
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>
+                          Repetição
+                          {withBacking && ' (a base já repete e conta)'}
+                        </DropdownMenuLabel>
+                        <DropdownMenuCheckboxItem
+                          checked={withBacking || lickLoop}
+                          disabled={withBacking}
+                          onCheckedChange={(loop) => {
+                            setLickLoop(loop);
+                            if (!loop) stopLoop();
+                          }}
+                        >
+                          Loop
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                          checked={withBacking || countIn}
+                          disabled={withBacking}
+                          onCheckedChange={setCountIn}
+                        >
+                          Contagem de 1 compasso
+                        </DropdownMenuCheckboxItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  {currentLick && !answerHidden && (
+                    <>
+                      {favorite && (
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={saved ? 'Salvo' : 'Salvar'}
+                                aria-pressed={saved}
+                                onClick={() =>
+                                  setFavorites(toggleFavorite(favorite))
+                                }
+                              />
+                            }
+                          >
+                            <Star className={cn(saved && 'fill-current')} />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {saved ? 'Salvo' : 'Salvar'}
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                      <ExportButtons
+                        compact
+                        target={lickExport}
+                        layout={FRETBOARD_LAYOUT}
+                        appendix={appendix}
+                        title={`Lick em ${scale.root} ${scale.name} · posição ${lickPosition}`}
+                        details={`Estilo: ${currentLick.style} · Forma: ${currentLick.form} · ${currentLick.bars.length} compasso${currentLick.bars.length > 1 ? 's' : ''} · ${lickBpm} BPM`}
+                      />
+                    </>
+                  )}
+                </div>
               </div>
-              {answerHidden && (
+              {currentLick && answerHidden && (
                 <div className="flex flex-wrap items-center gap-4 rounded-xl border p-4">
                   <span className="text-muted-foreground">
                     Ouça o lick e tente tocar antes de ver a tab.
@@ -724,59 +852,64 @@ export function ScalePage() {
                   </Button>
                 </div>
               )}
-            </div>
-          )}
-          {currentLick && !answerHidden && (
-            <div className="flex flex-col gap-2">
-              <span className="text-sm text-muted-foreground">
-                Estilo: {currentLick.style} · {TAB_LEGEND}
-              </span>
-              <div ref={lickExport} className="hidden">
-                <div data-export-item data-caption={TAB_LEGEND}>
-                  <TabSvg
-                    lines={currentLick.tab}
-                    label={`Tab do lick em ${scale.root} ${scale.name}`}
-                  />
+              {!currentLick && (
+                <p className="text-muted-foreground">
+                  Clique em Gerar lick para criar uma frase.
+                </p>
+              )}
+              {currentLick && !answerHidden && (
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Estilo: {currentLick.style} · {TAB_LEGEND}
+                  </span>
+                  <div ref={lickExport} className="hidden">
+                    <div data-export-item data-caption={TAB_LEGEND}>
+                      <TabSvg
+                        lines={currentLick.tab}
+                        label={`Tab do lick em ${scale.root} ${scale.name}`}
+                      />
+                    </div>
+                    <div
+                      data-export-item
+                      data-caption={`${scale.root} ${scale.name} · posição ${lickPosition}`}
+                    >
+                      <Fretboard
+                        positions={boardPositions}
+                        frets={FRETS}
+                        label={`Posição ${lickPosition} de ${scale.root} ${scale.name}`}
+                      />
+                    </div>
+                  </div>
+                  <pre className="w-fit max-w-full overflow-x-auto rounded-xl border p-4 font-mono text-sm leading-relaxed">
+                    {currentLick.tab.map((line, s) => {
+                      const cell =
+                        playingNote !== null &&
+                        currentLick.notes[playingNote]?.string === s + 1
+                          ? currentLick.cells[playingNote]
+                          : undefined;
+                      const end = cell ? cell.column + cell.width : 0;
+                      return (
+                        <span key={s}>
+                          {cell ? (
+                            <>
+                              {line.slice(0, cell.column)}
+                              <mark className="rounded-sm bg-highlight text-highlight-foreground">
+                                {line.slice(cell.column, end)}
+                              </mark>
+                              {line.slice(end)}
+                            </>
+                          ) : (
+                            line
+                          )}
+                          {'\n'}
+                        </span>
+                      );
+                    })}
+                  </pre>
                 </div>
-                <div
-                  data-export-item
-                  data-caption={`${scale.root} ${scale.name} · posição ${lickPosition}`}
-                >
-                  <Fretboard
-                    positions={boardPositions}
-                    frets={FRETS}
-                    label={`Posição ${lickPosition} de ${scale.root} ${scale.name}`}
-                  />
-                </div>
-              </div>
-              <pre className="w-fit max-w-full overflow-x-auto rounded-xl border p-4 font-mono text-sm leading-relaxed">
-                {currentLick.tab.map((line, s) => {
-                  const cell =
-                    playingNote !== null &&
-                    currentLick.notes[playingNote]?.string === s + 1
-                      ? currentLick.cells[playingNote]
-                      : undefined;
-                  const end = cell ? cell.column + cell.width : 0;
-                  return (
-                    <span key={s}>
-                      {cell ? (
-                        <>
-                          {line.slice(0, cell.column)}
-                          <mark className="rounded-sm bg-highlight text-highlight-foreground">
-                            {line.slice(cell.column, end)}
-                          </mark>
-                          {line.slice(end)}
-                        </>
-                      ) : (
-                        line
-                      )}
-                      {'\n'}
-                    </span>
-                  );
-                })}
-              </pre>
+              )}
             </div>
-          )}
+          </div>
           {currentLick && explain && !answerHidden && (
             <div className="flex flex-col gap-4">
               <h3 className="text-lg font-semibold tracking-tight">
