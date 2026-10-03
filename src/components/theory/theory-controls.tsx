@@ -29,7 +29,7 @@ export function RootTabs({
   onChange: (value: Root) => void;
 }) {
   return (
-    <div className="flex max-w-full items-center gap-2">
+    <div className="flex max-w-full flex-wrap items-center gap-2">
       <Label id={`${id}-label`}>Tônica</Label>
       <Tabs
         value={value}
@@ -38,10 +38,10 @@ export function RootTabs({
       >
         <TabsList
           aria-labelledby={`${id}-label`}
-          className="max-w-full justify-start overflow-x-auto overflow-y-hidden [scrollbar-width:none]"
+          className="grid h-auto! w-full grid-cols-6 sm:inline-flex sm:h-8! sm:w-fit sm:max-w-full"
         >
           {ROOTS.map((r) => (
-            <TabsTrigger key={r} value={r} className="min-w-9">
+            <TabsTrigger key={r} value={r} className="min-w-9 py-1 sm:py-0.5">
               {r}
             </TabsTrigger>
           ))}
