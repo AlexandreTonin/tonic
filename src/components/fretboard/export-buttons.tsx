@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import {
   downloadSvgsPng,
+  type ExportAppendix,
   type ExportCaption,
   type ExportLayout,
   fileSlug,
@@ -12,6 +13,7 @@ import { type RefObject, useState } from 'react';
 type ExportButtonsProps = ExportCaption & {
   target: RefObject<HTMLElement | null>;
   layout: ExportLayout;
+  appendix?: ExportAppendix;
   printLabel?: string;
   downloadLabel?: string;
 };
@@ -19,6 +21,7 @@ type ExportButtonsProps = ExportCaption & {
 export function ExportButtons({
   target,
   layout,
+  appendix,
   title,
   details,
   printLabel = 'Imprimir',
@@ -47,7 +50,7 @@ export function ExportButtons({
         size="sm"
         onClick={() =>
           target.current &&
-          printSvgs(target.current, { title, details }, layout)
+          printSvgs(target.current, { title, details }, layout, appendix)
         }
       >
         <Printer data-icon="inline-start" />

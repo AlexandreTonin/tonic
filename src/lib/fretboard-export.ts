@@ -9,6 +9,8 @@ const CAPTION = 24;
 
 export type ExportCaption = { title: string; details: string };
 
+export type ExportAppendix = { heading: string; lines: string[] }[];
+
 export type ExportLayout = {
   columns: number;
   itemScale: number;
@@ -93,6 +95,7 @@ export function printSvgs(
   container: HTMLElement,
   { title, details }: ExportCaption,
   layout: ExportLayout,
+  appendix: ExportAppendix = [],
 ) {
   const page = capture(container);
   if (!page.shots.length) return;
@@ -105,6 +108,12 @@ export function printSvgs(
         : '';
       return `<figure>${serialize(shot.clone)}${caption}</figure>`;
     })
+    .join('');
+  const notes = appendix
+    .map(
+      ({ heading, lines }) =>
+        `<section><h2>${escapeHtml(heading)}</h2>${lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('')}</section>`,
+    )
     .join('');
 
   const frame = document.createElement('iframe');
@@ -125,8 +134,11 @@ p { font-size: 14px; color: ${page.muted}; margin: 0 0 16px; }
 main { display: grid; grid-template-columns: repeat(${Math.min(layout.columns, page.shots.length)}, minmax(0, 1fr)); gap: 8mm; max-width: ${layout.printMaxWidth}; }
 figure { margin: 0; text-align: center; break-inside: avoid; }
 figcaption { font-size: 13px; color: ${page.muted}; margin-top: 4px; }
+section { break-inside: avoid; margin-top: 8mm; }
+section h2 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+section p { color: ${page.foreground}; margin: 0 0 4px; }
 footer { position: fixed; bottom: 0; left: 0; font-size: 11px; color: ${page.muted}; }
-</style></head><body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(details)}</p><main>${figures}</main><footer>${escapeHtml(appUrl())}</footer></body></html>`);
+</style></head><body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(details)}</p><main>${figures}</main>${notes}<footer>${escapeHtml(appUrl())}</footer></body></html>`);
   doc.close();
   view.addEventListener('afterprint', () => frame.remove(), { once: true });
   view.focus();
