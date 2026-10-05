@@ -116,7 +116,7 @@ export async function loadAudio() {
 export function useGuitar() {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [looping, setLooping] = useState(false);
+  const [sequencing, setSequencing] = useState(false);
   const owner = useRef({});
 
   useEffect(() => {
@@ -132,7 +132,7 @@ export function useGuitar() {
       const g = await loadGuitar();
       await context!.resume();
       silence();
-      setLooping(false);
+      setSequencing(false);
       schedule(g, context!.currentTime + 0.05);
       setFailed(false);
     } catch {
@@ -145,10 +145,10 @@ export function useGuitar() {
   return {
     loading,
     failed,
-    looping,
+    sequencing,
     stop: () => {
       silence();
-      setLooping(false);
+      setSequencing(false);
     },
     strum: (midis: number[]) =>
       play((g, start) =>
@@ -200,14 +200,15 @@ export function useGuitar() {
               if (loopOwner === owner.current)
                 pass(end, Math.min(MAX_BPM, tempo + accelerate));
             });
-          } else if (onNote) {
-            cueAt(end, () => onNote(null));
+          } else {
+            cueAt(end, () => {
+              onNote?.(null);
+              setSequencing(false);
+            });
           }
         };
-        if (loop) {
-          loopOwner = owner.current;
-          setLooping(true);
-        }
+        loopOwner = owner.current;
+        setSequencing(true);
         const beat = 60 / bpm;
         for (let i = 0; i < countIn; i++) {
           playClick(context!, 'beep', i ? 'normal' : 'accent', start + i * beat);

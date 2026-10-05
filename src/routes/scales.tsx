@@ -222,6 +222,7 @@ export function ScalePage() {
   const [favorites, setFavorites] = useState(loadFavorites);
   const lickExport = useRef<HTMLDivElement>(null);
   const cues = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const lickStart = useRef<{ lick?: Lick; beat: number }>({ beat: 0 });
 
   const lickBeats = bars * BEATS_PER_BAR;
   const tempoAt = (beat: number) =>
@@ -248,8 +249,12 @@ export function ScalePage() {
     onBeat: (beat, time, instrument) => {
       const lick = view?.lick;
       if (!lick || beat < BEATS_PER_BAR) return;
+      if (lickStart.current.lick !== lick || beat === BEATS_PER_BAR) {
+        if (beat % BEATS_PER_BAR) return;
+        lickStart.current = { lick, beat };
+      }
       const beatLength = 60 / tempoAt(beat);
-      const offset = (beat - BEATS_PER_BAR) % lick.beats;
+      const offset = (beat - lickStart.current.beat) % lick.beats;
       if (offset === 0) cue(time, () => setPlayingBpm(tempoAt(beat)));
       lick.notes.forEach((n, index) => {
         if (n.start < offset - EPSILON || n.start >= offset + 1 - EPSILON)
@@ -341,7 +346,10 @@ export function ScalePage() {
         ]
       : undefined;
 
-  const playLick = (l: Lick, bpm = lickBpm, loop = lickLoop) =>
+  const playLick = (
+    l: Lick,
+    { bpm = lickBpm, loop = lickLoop, count = countIn, step = accelerate } = {},
+  ) =>
     guitar.sequence(
       l.notes.map((n) => ({
         ...n,
@@ -350,8 +358,8 @@ export function ScalePage() {
       {
         bpm,
         loop,
-        countIn: countIn ? BEATS_PER_BAR : 0,
-        accelerate: loop ? accelerate : 0,
+        countIn: count ? BEATS_PER_BAR : 0,
+        accelerate: loop ? step : 0,
         onPass: setPlayingBpm,
         onNote: (midi, index) => {
           setPlayingMidi(midi);
@@ -360,11 +368,14 @@ export function ScalePage() {
       },
     );
 
-  const lickPlaying = withBacking ? backing.playing : guitar.looping;
+  const lickPlaying = withBacking ? backing.playing : guitar.sequencing;
+  const replay = (options: Parameters<typeof playLick>[1]) => {
+    if (guitar.sequencing && currentLick) playLick(currentLick, options);
+  };
 
   const stopLoop = () => {
     if (backing.playing) backing.stop();
-    if (guitar.looping) guitar.stop();
+    if (guitar.sequencing) guitar.stop();
     cues.current.forEach(clearTimeout);
     cues.current = [];
     setPlayingMidi(null);
@@ -374,6 +385,11 @@ export function ScalePage() {
   const startLick = (l: Lick) => {
     if (!withBacking) return playLick(l);
     if (!backing.playing) void backing.start();
+  };
+
+  const setLick = (patch: Partial<typeof search>) => {
+    if (!withBacking) stopLoop();
+    setSearch(patch);
   };
 
   const generateLick = () => {
@@ -458,10 +474,19 @@ export function ScalePage() {
               <Button
                 variant="outline"
                 disabled={!scaleMidis.length || guitar.loading}
-                onClick={() => guitar.upAndDown(scaleMidis, setPlayingMidi)}
+                onClick={() => {
+                  stopLoop();
+                  void guitar.upAndDown(scaleMidis, setPlayingMidi);
+                }}
               >
                 <Play data-icon="inline-start" />
-                {guitar.loading ? 'Carregando som…' : 'Tocar'}
+                {guitar.loading ? (
+                  'Carregando som…'
+                ) : (
+                  <>
+                    Tocar<span className="sr-only"> escala</span>
+                  </>
+                )}
               </Button>
               <ToneMenu />
               <DropdownMenu>
@@ -546,7 +571,7 @@ export function ScalePage() {
                   items={STYLE_NAMES}
                   onValueChange={(style) =>
                     style &&
-                    setSearch({
+                    setLick({
                       style: style === AUTO_STYLE ? undefined : style,
                     })
                   }
@@ -568,7 +593,7 @@ export function ScalePage() {
                 label="Compassos"
                 options={LICK_BARS}
                 value={bars}
-                onChange={(bars) => setSearch({ bars })}
+                onChange={(bars) => setLick({ bars })}
               />
               <div className="flex items-center gap-1">
                 <DropdownMenu>
@@ -590,13 +615,13 @@ export function ScalePage() {
                       <DropdownMenuLabel>Como gerar</DropdownMenuLabel>
                       <DropdownMenuCheckboxItem
                         checked={easy}
-                        onCheckedChange={(easy) => setSearch({ easy })}
+                        onCheckedChange={(easy) => setLick({ easy })}
                       >
                         Modo iniciante
                       </DropdownMenuCheckboxItem>
                       <DropdownMenuCheckboxItem
                         checked={span}
-                        onCheckedChange={(span) => setSearch({ span })}
+                        onCheckedChange={(span) => setLick({ span })}
                       >
                         Atravessar para a posição {(lickPosition % 5) + 1}
                       </DropdownMenuCheckboxItem>
@@ -650,7 +675,13 @@ export function ScalePage() {
                       onClick={() => currentLick && startLick(currentLick)}
                     >
                       <Play data-icon="inline-start" />
-                      {backing.loading ? 'Carregando base…' : 'Tocar'}
+                      {backing.loading ? (
+                        'Carregando base…'
+                      ) : (
+                        <>
+                          Tocar<span className="sr-only"> lick</span>
+                        </>
+                      )}
                     </Button>
                   )}
                   <DropdownMenu>
@@ -679,8 +710,7 @@ export function ScalePage() {
                           value={lickBpm}
                           onValueChange={(bpm: number) => {
                             setLickBpm(bpm);
-                            if (guitar.looping && currentLick)
-                              playLick(currentLick, bpm);
+                            replay({ bpm });
                           }}
                         >
                           {LICK_TEMPOS.map((bpm) => (
@@ -698,7 +728,10 @@ export function ScalePage() {
                         </DropdownMenuLabel>
                         <DropdownMenuRadioGroup
                           value={accelerate}
-                          onValueChange={(step: number) => setAccelerate(step)}
+                          onValueChange={(step: number) => {
+                            setAccelerate(step);
+                            replay({ step });
+                          }}
                         >
                           {ACCELERATE_STEPS.map((step) => (
                             <DropdownMenuRadioItem
@@ -795,7 +828,10 @@ export function ScalePage() {
                         <DropdownMenuCheckboxItem
                           checked={withBacking || countIn}
                           disabled={withBacking}
-                          onCheckedChange={setCountIn}
+                          onCheckedChange={(count) => {
+                            setCountIn(count);
+                            replay({ count });
+                          }}
                         >
                           Contagem de 1 compasso
                         </DropdownMenuCheckboxItem>
@@ -811,7 +847,7 @@ export function ScalePage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                aria-label={saved ? 'Salvo' : 'Salvar'}
+                                aria-label="Salvar lick"
                                 aria-pressed={saved}
                                 onClick={() =>
                                   setFavorites(toggleFavorite(favorite))

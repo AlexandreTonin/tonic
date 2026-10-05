@@ -1,4 +1,4 @@
-import { LICK_STYLES } from '@/lib/theory/lick';
+import { LICK_BARS, LICK_STYLES } from '@/lib/theory/lick';
 import type { SearchSchemaInput } from '@tanstack/react-router';
 
 export const pick = <T extends string>(
@@ -55,7 +55,7 @@ const LICK_SEED = /^[0-9a-z]{1,8}$/;
 
 export const lickSearch = (search: RawSearch) => {
   const lick = String(search.lick ?? '');
-  const bars = [1, 2, 4].find((b) => b === Number(search.bars));
+  const bars = LICK_BARS.find((b) => b === Number(search.bars));
   return {
     lick: LICK_SEED.test(lick) ? lick : undefined,
     bars: bars ?? LICK_DEFAULTS.bars,
