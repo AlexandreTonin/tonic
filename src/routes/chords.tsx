@@ -1,4 +1,4 @@
-import { ToneSelect } from '@/components/audio/tone-select';
+import { ToneMenu } from '@/components/audio/tone-select';
 import { ChordDiagram } from '@/components/chord-diagram/chord-diagram';
 import { ExportButtons } from '@/components/fretboard/export-buttons';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
@@ -6,13 +6,12 @@ import type { ExportLayout } from '@/lib/fretboard-export';
 import { LABEL_NAMES } from '@/lib/labels';
 import {
   CatalogSelect,
-  LabelModeSelect,
+  ChoiceTabs,
+  LabelMenu,
   RootTabs,
 } from '@/components/theory/theory-controls';
 import { ViewToggle } from '@/components/theory/view-toggle';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGuitar } from '@/hooks/use-guitar';
 import {
   getChord,
@@ -40,6 +39,7 @@ const SHAPES_LAYOUT: ExportLayout = {
   printMaxWidth: '100%',
 };
 type View = keyof typeof VIEWS;
+const VIEW_IDS = Object.keys(VIEWS) as View[];
 
 const shapeKey = (frets: (number | null)[]) =>
   frets.map((f) => f ?? 'x').join('-');
@@ -124,57 +124,79 @@ export function ChordPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-6">
-        <RootTabs
-          id="chord-root"
-          value={root}
-          onChange={(root) => setSearch({ root, shape: undefined })}
-        />
-        <CatalogSelect
-          id="chord-id"
-          label="Acorde"
-          items={CHORDS}
-          value={chordId}
-          onChange={(id) =>
-            navigate({
-              to: '/chords/$id',
-              params: { id },
-              search: { ...search, shape: undefined },
-            })
-          }
-        />
-        <LabelModeSelect
-          id="chord-label-mode"
-          value={labelMode}
-          onChange={(labels) => setSearch({ labels })}
-        />
-        <ToneSelect id="chord-tone" />
-      </div>
-
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2">
-          <Label id="chord-view-label">Braço</Label>
-          <Tabs
-            value={view}
-            onValueChange={(v: View) => setSearch({ view: v })}
-          >
-            <TabsList aria-labelledby="chord-view-label">
-              {Object.entries(VIEWS).map(([value, label]) => (
-                <TabsTrigger key={value} value={value} className="px-3">
-                  {label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-          {view === 'shape' && shapeTab && (
-            <span className="text-sm text-muted-foreground tabular-nums">
-              {shapeTab}
-            </span>
-          )}
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <CatalogSelect
+            id="chord-id"
+            label="Acorde"
+            items={CHORDS}
+            value={chordId}
+            onChange={(id) =>
+              navigate({
+                to: '/chords/$id',
+                params: { id },
+                search: { ...search, shape: undefined },
+              })
+            }
+          />
+          <RootTabs
+            id="chord-root"
+            value={root}
+            onChange={(root) => setSearch({ root, shape: undefined })}
+          />
         </div>
 
         {positions && (
           <PrintableFretboard
+            toolbar={
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <ChoiceTabs
+                  id="chord-view"
+                  label="Braço"
+                  options={VIEW_IDS}
+                  value={view}
+                  onChange={(view) => setSearch({ view })}
+                  format={(view) => VIEWS[view]}
+                />
+                {view === 'shape' && shapeTab && (
+                  <span className="text-sm text-muted-foreground tabular-nums">
+                    {shapeTab}
+                  </span>
+                )}
+              </div>
+            }
+            actions={
+              <>
+                {guitar.failed && (
+                  <span role="status" className="text-sm text-muted-foreground">
+                    Não foi possível carregar o som.
+                  </span>
+                )}
+                {view === 'shape' && shape && (
+                  <Button
+                    variant="outline"
+                    disabled={guitar.loading}
+                    onClick={() =>
+                      guitar.strum(shape.positions.map((p) => p.midi))
+                    }
+                  >
+                    <Play data-icon="inline-start" />
+                    {guitar.loading ? (
+                      'Carregando som…'
+                    ) : (
+                      <>
+                        Tocar<span className="sr-only"> forma</span>
+                      </>
+                    )}
+                  </Button>
+                )}
+                <ToneMenu />
+                <LabelMenu
+                  value={labelMode}
+                  onChange={(labels) => setSearch({ labels })}
+                />
+              </>
+            }
             title={
               view === 'shape'
                 ? `${chord.symbol} · forma ${shapeTab}`
@@ -216,11 +238,6 @@ export function ChordPage() {
             />
           )}
         </div>
-        {guitar.failed && (
-          <p className="text-muted-foreground">
-            Não foi possível carregar o som.
-          </p>
-        )}
         {voicings.length === 0 && (
           <p className="text-muted-foreground">
             Nenhuma forma com a tônica no baixo cabe numa mão para este acorde.

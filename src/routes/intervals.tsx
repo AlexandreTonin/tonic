@@ -1,4 +1,4 @@
-import { ToneSelect } from '@/components/audio/tone-select';
+import { ToneMenu } from '@/components/audio/tone-select';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { LinkRow, Related } from '@/components/theory/related';
 import { CatalogSelect, RootTabs } from '@/components/theory/theory-controls';
@@ -93,68 +93,77 @@ export function IntervalPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-6">
-        <RootTabs
-          id="interval-root"
-          value={root}
-          onChange={(root) =>
-            navigate({ to: '.', search: { root }, replace: true })
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <CatalogSelect
+            id="interval-id"
+            label="Intervalo"
+            items={INTERVALS}
+            value={id}
+            onChange={(id) =>
+              navigate({
+                to: '/intervals/$id',
+                params: { id },
+                search: { root },
+              })
+            }
+          />
+          <RootTabs
+            id="interval-root"
+            value={root}
+            onChange={(root) =>
+              navigate({ to: '.', search: { root }, replace: true })
+            }
+          />
+        </div>
+
+        <PrintableFretboard
+          actions={
+            <>
+              {guitar.loading && (
+                <span role="status" className="text-sm text-muted-foreground">
+                  Carregando som…
+                </span>
+              )}
+              {guitar.failed && (
+                <span role="status" className="text-sm text-muted-foreground">
+                  Não foi possível carregar o som.
+                </span>
+              )}
+              <Button
+                variant="outline"
+                disabled={guitar.loading}
+                onClick={() => guitar.melody(interval.midi)}
+              >
+                <ArrowUp data-icon="inline-start" />
+                Subindo
+              </Button>
+              <Button
+                variant="outline"
+                disabled={guitar.loading}
+                onClick={() => guitar.melody([...interval.midi].reverse())}
+              >
+                <ArrowDown data-icon="inline-start" />
+                Descendo
+              </Button>
+              <Button
+                variant="outline"
+                disabled={guitar.loading}
+                onClick={() => guitar.strum(interval.midi)}
+              >
+                <Play data-icon="inline-start" />
+                Junto
+              </Button>
+              <ToneMenu />
+            </>
           }
-        />
-        <CatalogSelect
-          id="interval-id"
-          label="Intervalo"
-          items={INTERVALS}
-          value={id}
-          onChange={(id) =>
-            navigate({ to: '/intervals/$id', params: { id }, search: { root } })
-          }
+          title={`${interval.name} (${interval.label}) a partir de ${interval.root}`}
+          details={`Notas: ${interval.notes.join(' – ')} · ${interval.semitones} ${interval.semitones === 1 ? 'semitom' : 'semitons'} · Rótulo: intervalos`}
+          positions={positions}
+          frets={FRETS}
+          label={`Braço com ${interval.notes.join(' e ')}`}
         />
       </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          variant="outline"
-          disabled={guitar.loading}
-          onClick={() => guitar.melody(interval.midi)}
-        >
-          <ArrowUp data-icon="inline-start" />
-          Subindo
-        </Button>
-        <Button
-          variant="outline"
-          disabled={guitar.loading}
-          onClick={() => guitar.melody([...interval.midi].reverse())}
-        >
-          <ArrowDown data-icon="inline-start" />
-          Descendo
-        </Button>
-        <Button
-          variant="outline"
-          disabled={guitar.loading}
-          onClick={() => guitar.strum(interval.midi)}
-        >
-          <Play data-icon="inline-start" />
-          Junto
-        </Button>
-        <ToneSelect id="interval-tone" />
-        {guitar.loading && (
-          <span className="text-sm text-muted-foreground">Carregando som…</span>
-        )}
-        {guitar.failed && (
-          <span className="text-sm text-muted-foreground">
-            Não foi possível carregar o som.
-          </span>
-        )}
-      </div>
-
-      <PrintableFretboard
-        title={`${interval.name} (${interval.label}) a partir de ${interval.root}`}
-        details={`Notas: ${interval.notes.join(' – ')} · ${interval.semitones} ${interval.semitones === 1 ? 'semitom' : 'semitons'} · Rótulo: intervalos`}
-        positions={positions}
-        frets={FRETS}
-        label={`Braço com ${interval.notes.join(' e ')}`}
-      />
 
       {inversion && (
         <Related title="Relacionado">

@@ -1,19 +1,26 @@
-import { ToneSelect } from '@/components/audio/tone-select';
+import { ToneMenu } from '@/components/audio/tone-select';
 import { ChordDiagram } from '@/components/chord-diagram/chord-diagram';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { LABEL_NAMES } from '@/lib/labels';
 import { LinkRow, Related } from '@/components/theory/related';
 import {
   CatalogSelect,
-  LabelModeSelect,
+  ChoiceTabs,
+  LabelMenu,
   RootTabs,
 } from '@/components/theory/theory-controls';
 import { ViewToggle } from '@/components/theory/view-toggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+} from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Toggle } from '@/components/ui/toggle';
+import { MenuButton } from '@/components/ui/menu-button';
 import { useProgressionPlayer } from '@/hooks/use-progression-player';
 import { grooveFor, type Track, TRACK_LABELS, TRACKS } from '@/lib/backing';
 import type { HarmonicFunction } from '@/lib/theory/core';
@@ -25,7 +32,7 @@ import {
 import { cn } from '@/lib/utils';
 import { PROGRESSION_STRUMS } from '@/router/search';
 import { getRouteApi, Link } from '@tanstack/react-router';
-import { Play, Square } from 'lucide-react';
+import { Layers, Play, Square } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 const route = getRouteApi('/progressions/$id');
@@ -39,6 +46,7 @@ const FUNCTIONS: Record<HarmonicFunction, string> = {
   'secondary-dominant': 'Dominante secundária',
 };
 const SCALE_MODES = { key: 'Do tom', chord: 'Por acorde' } as const;
+const SCALE_MODE_IDS = Object.keys(SCALE_MODES) as (keyof typeof SCALE_MODES)[];
 
 const uniqueBy = <T,>(items: T[], key: (item: T) => string) => [
   ...new Map(items.map((i) => [key(i), i])).values(),
@@ -152,132 +160,107 @@ export function ProgressionPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-6">
-        <RootTabs
-          id="progression-root"
-          value={root}
-          onChange={(root) => setSearch({ root })}
-        />
-        <CatalogSelect
-          id="progression-id"
-          label="Progressão"
-          items={PROGRESSIONS}
-          value={id}
-          onChange={(id) => {
-            player.stop();
-            setSelected(0);
-            navigate({ to: '/progressions/$id', params: { id }, search });
-          }}
-        />
-        <LabelModeSelect
-          id="progression-label-mode"
-          value={labels}
-          onChange={(labels) => setSearch({ labels })}
-        />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-6">
-        <Button
-          disabled={player.loading}
-          onClick={() => (player.playing ? player.stop() : player.start())}
-        >
-          {player.playing ? (
-            <Square data-icon="inline-start" />
-          ) : (
-            <Play data-icon="inline-start" />
-          )}
-          {player.loading
-            ? 'Carregando som…'
-            : player.playing
-              ? 'Parar'
-              : 'Tocar em loop'}
-        </Button>
-        <ToneSelect id="progression-tone" />
-        <div className="flex items-center gap-2">
-          <Label htmlFor="progression-bpm">BPM</Label>
-          <Input
-            key={bpm}
-            id="progression-bpm"
-            type="number"
-            min={40}
-            max={240}
-            defaultValue={bpm}
-            className="w-20 tabular-nums"
-            onBlur={(e) => setSearch({ bpm: Number(e.currentTarget.value) })}
-            onKeyDown={(e) =>
-              e.key === 'Enter' &&
-              setSearch({ bpm: Number(e.currentTarget.value) })
-            }
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <CatalogSelect
+            id="progression-id"
+            label="Progressão"
+            items={PROGRESSIONS}
+            value={id}
+            onChange={(id) => {
+              player.stop();
+              setSelected(0);
+              navigate({ to: '/progressions/$id', params: { id }, search });
+            }}
+          />
+          <RootTabs
+            id="progression-root"
+            value={root}
+            onChange={(root) => setSearch({ root })}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Label id="progression-strums-label">Batidas por compasso</Label>
-          <Tabs
-            value={String(strums)}
-            onValueChange={(value: string) =>
-              setSearch({ strums: Number(value) as typeof strums })
-            }
-          >
-            <TabsList aria-labelledby="progression-strums-label">
-              {PROGRESSION_STRUMS.map((value) => (
-                <TabsTrigger
-                  key={value}
-                  value={String(value)}
-                  className="min-w-9"
-                >
-                  {value}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-        <div className="flex items-center gap-2">
-          <Label id="progression-scales-label">Escala</Label>
-          <Tabs
-            value={scales}
-            onValueChange={(scales: typeof search.scales) =>
-              setSearch({ scales })
-            }
-          >
-            <TabsList aria-labelledby="progression-scales-label">
-              {Object.entries(SCALE_MODES).map(([value, label]) => (
-                <TabsTrigger key={value} value={value} className="px-3">
-                  {label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-        {player.bar === -1 && (
-          <span className="text-muted-foreground">Contando…</span>
-        )}
-        {player.failed && (
-          <span className="text-sm text-muted-foreground">
-            Não foi possível carregar o som.
-          </span>
-        )}
-      </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Label id="progression-tracks-label">Faixas</Label>
-        <div
-          role="group"
-          aria-labelledby="progression-tracks-label"
-          className="flex flex-wrap gap-1"
-        >
-          {TRACKS.map((track) => (
-            <Toggle
-              key={track}
-              variant="outline"
-              pressed={!muted.has(track)}
-              onPressedChange={() => toggleTrack(track)}
-              className={cn(
-                muted.has(track) && 'text-muted-foreground line-through',
-              )}
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <ChoiceTabs
+              id="progression-strums"
+              label="Batidas por compasso"
+              options={PROGRESSION_STRUMS}
+              value={strums}
+              onChange={(strums) => setSearch({ strums })}
+            />
+            <div className="flex items-center gap-2">
+              <Label htmlFor="progression-bpm">BPM</Label>
+              <Input
+                key={bpm}
+                id="progression-bpm"
+                type="number"
+                min={40}
+                max={240}
+                defaultValue={bpm}
+                className="w-20 tabular-nums"
+                onBlur={(e) =>
+                  setSearch({ bpm: Number(e.currentTarget.value) })
+                }
+                onKeyDown={(e) =>
+                  e.key === 'Enter' &&
+                  setSearch({ bpm: Number(e.currentTarget.value) })
+                }
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-1">
+            {player.bar === -1 && (
+              <span role="status" className="text-sm text-muted-foreground">
+                Contando…
+              </span>
+            )}
+            {player.failed && (
+              <span role="status" className="text-sm text-muted-foreground">
+                Não foi possível carregar o som.
+              </span>
+            )}
+            <Button
+              disabled={player.loading}
+              onClick={() => (player.playing ? player.stop() : player.start())}
             >
-              {TRACK_LABELS[track]}
-            </Toggle>
-          ))}
+              {player.playing ? (
+                <Square data-icon="inline-start" />
+              ) : (
+                <Play data-icon="inline-start" />
+              )}
+              {player.loading
+                ? 'Carregando som…'
+                : player.playing
+                  ? 'Parar'
+                  : 'Tocar em loop'}
+            </Button>
+            <DropdownMenu>
+              <MenuButton icon={Layers}>
+                Faixas
+                {muted.size > 0 && (
+                  <span className="text-muted-foreground tabular-nums">
+                    ({TRACKS.length - muted.size}/{TRACKS.length})
+                  </span>
+                )}
+              </MenuButton>
+              <DropdownMenuContent align="end" className="w-auto min-w-48">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Faixas</DropdownMenuLabel>
+                  {TRACKS.map((track) => (
+                    <DropdownMenuCheckboxItem
+                      key={track}
+                      checked={!muted.has(track)}
+                      onCheckedChange={() => toggleTrack(track)}
+                    >
+                      {TRACK_LABELS[track]}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <ToneMenu />
+          </div>
         </div>
       </div>
 
@@ -323,6 +306,22 @@ export function ProgressionPage() {
             {scale.name} de {scale.root} sobre {bar.symbol}
           </h2>
           <PrintableFretboard
+            toolbar={
+              <ChoiceTabs
+                id="progression-scales"
+                label="Escala"
+                options={SCALE_MODE_IDS}
+                value={scales}
+                onChange={(scales) => setSearch({ scales })}
+                format={(mode) => SCALE_MODES[mode]}
+              />
+            }
+            actions={
+              <LabelMenu
+                value={labels}
+                onChange={(labels) => setSearch({ labels })}
+              />
+            }
             title={`${scale.name} de ${scale.root} sobre ${bar.symbol}`}
             details={`${progression.name} em ${keyName} · compasso ${Math.min(current, bars.length - 1) + 1} (${bar.degree}) · Rótulo: ${LABEL_NAMES[labels]}`}
             positions={positions}

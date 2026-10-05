@@ -28,14 +28,14 @@ export function PrintableFretboard({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         {toolbar}
-        <div className="flex flex-wrap items-center gap-1">
+        <div className="ml-auto flex flex-wrap items-center gap-1">
           {actions}
           <ExportButtons
             target={exportContent ? exported : figure}
             layout={exportContent ? exportLayout : FRETBOARD_LAYOUT}
             title={title}
             details={details}
-            compact={!!actions}
+            compact
           />
         </div>
       </div>

@@ -6,6 +6,8 @@ import { TabSvg } from '@/components/fretboard/tab-svg';
 import { LABEL_NAMES } from '@/lib/labels';
 import {
   CatalogSelect,
+  ChoiceTabs,
+  LabelMenu,
   PositionTabs,
   RootTabs,
 } from '@/components/theory/theory-controls';
@@ -20,9 +22,9 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
+import { MenuButton } from '@/components/ui/menu-button';
 import {
   Tooltip,
   TooltipContent,
@@ -64,7 +66,6 @@ import {
 import { cn } from '@/lib/utils';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import {
-  ChevronDown,
   Drum,
   Eye,
   Gauge,
@@ -74,7 +75,6 @@ import {
   SlidersHorizontal,
   Square,
   Star,
-  Type,
   X,
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
@@ -103,43 +103,6 @@ const STYLE_NAMES: Record<string, string> = {
 };
 const TAB_LEGEND =
   'h hammer-on · p pull-off · / \\ slide · b bend · r release · b¼ curl · ~ vibrato';
-
-function ChoiceTabs<T extends string | number>({
-  id,
-  label,
-  options,
-  value,
-  onChange,
-  format = String,
-}: {
-  id: string;
-  label: string;
-  options: readonly T[];
-  value: T;
-  onChange: (value: T) => void;
-  format?: (value: T) => string;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <Label id={`${id}-label`}>{label}</Label>
-      <Tabs
-        value={String(value)}
-        onValueChange={(v: string) => {
-          const option = options.find((o) => String(o) === v);
-          if (option !== undefined) onChange(option);
-        }}
-      >
-        <TabsList aria-labelledby={`${id}-label`}>
-          {options.map((o) => (
-            <TabsTrigger key={o} value={String(o)} className="min-w-9 px-3">
-              {format(o)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-    </div>
-  );
-}
 
 export function ScalePage() {
   const { id: scaleId } = route.useParams();
@@ -489,55 +452,25 @@ export function ScalePage() {
                 )}
               </Button>
               <ToneMenu />
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      aria-label={`Exibição: ${LABEL_NAMES[labelMode]}`}
-                    />
-                  }
-                >
-                  <Type data-icon="inline-start" />
-                  <span className="capitalize">{LABEL_NAMES[labelMode]}</span>
-                  <ChevronDown
-                    data-icon="inline-end"
-                    className="text-muted-foreground"
-                  />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-auto min-w-56">
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>Rótulo das notas</DropdownMenuLabel>
-                    <DropdownMenuRadioGroup
-                      value={labelMode}
-                      onValueChange={(labels: typeof labelMode) =>
-                        setSearch({ labels })
-                      }
-                    >
-                      <DropdownMenuRadioItem value="notes">
-                        Notas
-                      </DropdownMenuRadioItem>
-                      <DropdownMenuRadioItem value="intervals">
-                        Intervalos
-                      </DropdownMenuRadioItem>
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuGroup>
-                  {currentLick && !answerHidden && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        <DropdownMenuLabel>Lick</DropdownMenuLabel>
-                        <DropdownMenuCheckboxItem
-                          checked={lickOnly}
-                          onCheckedChange={setLickOnly}
-                        >
-                          Só as notas do lick
-                        </DropdownMenuCheckboxItem>
-                      </DropdownMenuGroup>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <LabelMenu
+                value={labelMode}
+                onChange={(labels) => setSearch({ labels })}
+              >
+                {currentLick && !answerHidden && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>Lick</DropdownMenuLabel>
+                      <DropdownMenuCheckboxItem
+                        checked={lickOnly}
+                        onCheckedChange={setLickOnly}
+                      >
+                        Só as notas do lick
+                      </DropdownMenuCheckboxItem>
+                    </DropdownMenuGroup>
+                  </>
+                )}
+              </LabelMenu>
             </>
           }
           title={`${scale.root} ${scale.name}${activePosition ? ` · posição ${activePosition}` : ''}`}
@@ -597,19 +530,14 @@ export function ScalePage() {
               />
               <div className="flex items-center gap-1">
                 <DropdownMenu>
-                  <DropdownMenuTrigger render={<Button variant="ghost" />}>
-                    <SlidersHorizontal data-icon="inline-start" />
+                  <MenuButton icon={SlidersHorizontal}>
                     Ajustes
                     {(easy || span) && (
                       <span className="text-muted-foreground tabular-nums">
                         ({Number(easy) + Number(span)})
                       </span>
                     )}
-                    <ChevronDown
-                      data-icon="inline-end"
-                      className="text-muted-foreground"
-                    />
-                  </DropdownMenuTrigger>
+                  </MenuButton>
                   <DropdownMenuContent className="w-auto min-w-64">
                     <DropdownMenuGroup>
                       <DropdownMenuLabel>Como gerar</DropdownMenuLabel>
@@ -685,21 +613,12 @@ export function ScalePage() {
                     </Button>
                   )}
                   <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          aria-label={`Andamento: ${lickBpm} BPM`}
-                        />
-                      }
+                    <MenuButton
+                      icon={Gauge}
+                      label={`Andamento: ${lickBpm} BPM`}
                     >
-                      <Gauge data-icon="inline-start" />
                       <span className="tabular-nums">{lickBpm} BPM</span>
-                      <ChevronDown
-                        data-icon="inline-end"
-                        className="text-muted-foreground"
-                      />
-                    </DropdownMenuTrigger>
+                    </MenuButton>
                     <DropdownMenuContent
                       align="end"
                       className="w-auto min-w-64"
@@ -747,21 +666,12 @@ export function ScalePage() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          aria-label={`Acompanhamento: ${withBacking ? `base de blues ${vamp.root}7` : 'sem base'}`}
-                        />
-                      }
+                    <MenuButton
+                      icon={Drum}
+                      label={`Acompanhamento: ${withBacking ? `base de blues ${vamp.root}7` : 'sem base'}`}
                     >
-                      <Drum data-icon="inline-start" />
                       {withBacking ? `Base ${vamp.root}7` : 'Sem base'}
-                      <ChevronDown
-                        data-icon="inline-end"
-                        className="text-muted-foreground"
-                      />
-                    </DropdownMenuTrigger>
+                    </MenuButton>
                     <DropdownMenuContent
                       align="end"
                       className="w-auto min-w-64"
@@ -786,26 +696,17 @@ export function ScalePage() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          aria-label={`Repetição: ${withBacking || lickLoop ? 'em loop' : 'uma vez'}${!withBacking && countIn ? ', com contagem' : ''}`}
-                        />
-                      }
+                    <MenuButton
+                      icon={Repeat}
+                      label={`Repetição: ${withBacking || lickLoop ? 'em loop' : 'uma vez'}${!withBacking && countIn ? ', com contagem' : ''}`}
                     >
-                      <Repeat data-icon="inline-start" />
                       {withBacking || lickLoop ? 'Loop' : 'Uma vez'}
                       {!withBacking && countIn && (
                         <span className="text-muted-foreground">
                           · Contagem
                         </span>
                       )}
-                      <ChevronDown
-                        data-icon="inline-end"
-                        className="text-muted-foreground"
-                      />
-                    </DropdownMenuTrigger>
+                    </MenuButton>
                     <DropdownMenuContent
                       align="end"
                       className="w-auto min-w-64"
