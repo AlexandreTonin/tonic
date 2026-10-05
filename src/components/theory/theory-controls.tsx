@@ -1,4 +1,13 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
+import { MenuButton } from '@/components/ui/menu-button';
 import {
   Select,
   SelectContent,
@@ -11,6 +20,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROOTS, type Root } from '@/lib/roots';
 import type { LabelMode } from '@/lib/theory/core';
+import { Type } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 const LABEL_MODES: Record<Exclude<LabelMode, 'degrees'>, string> = {
   notes: 'Notas',
@@ -29,7 +40,7 @@ export function RootTabs({
   onChange: (value: Root) => void;
 }) {
   return (
-    <div className="flex max-w-full items-center gap-2">
+    <div className="flex max-w-full flex-wrap items-center gap-2">
       <Label id={`${id}-label`}>Tônica</Label>
       <Tabs
         value={value}
@@ -38,10 +49,10 @@ export function RootTabs({
       >
         <TabsList
           aria-labelledby={`${id}-label`}
-          className="max-w-full justify-start overflow-x-auto overflow-y-hidden [scrollbar-width:none]"
+          className="grid h-auto! w-full grid-cols-6 sm:inline-flex sm:h-8! sm:w-fit sm:max-w-full"
         >
           {ROOTS.map((r) => (
-            <TabsTrigger key={r} value={r} className="min-w-9">
+            <TabsTrigger key={r} value={r} className="min-w-9 py-1 sm:py-0.5">
               {r}
             </TabsTrigger>
           ))}
@@ -94,30 +105,68 @@ export function CatalogSelect({
   );
 }
 
-export function LabelModeSelect({
-  id,
+export function LabelMenu({
   value,
   onChange,
-}: ControlProps<Exclude<LabelMode, 'degrees'>>) {
+  children,
+}: Omit<ControlProps<Exclude<LabelMode, 'degrees'>>, 'id'> & {
+  children?: ReactNode;
+}) {
+  return (
+    <DropdownMenu>
+      <MenuButton icon={Type} label={`Rótulo: ${LABEL_MODES[value]}`}>
+        {LABEL_MODES[value]}
+      </MenuButton>
+      <DropdownMenuContent align="end" className="w-auto min-w-56">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Rótulo das notas</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            value={value}
+            onValueChange={(v: Exclude<LabelMode, 'degrees'>) => onChange(v)}
+          >
+            {Object.entries(LABEL_MODES).map(([v, label]) => (
+              <DropdownMenuRadioItem key={v} value={v}>
+                {label}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuGroup>
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export function ChoiceTabs<T extends string | number>({
+  id,
+  label,
+  options,
+  value,
+  onChange,
+  format = String,
+}: ControlProps<T> & {
+  label: string;
+  options: readonly T[];
+  format?: (value: T) => string;
+}) {
   return (
     <div className="flex items-center gap-2">
-      <Label htmlFor={id}>Rótulo</Label>
-      <Select
-        value={value}
-        items={LABEL_MODES}
-        onValueChange={(v) => v && onChange(v)}
+      <Label id={`${id}-label`}>{label}</Label>
+      <Tabs
+        value={String(value)}
+        onValueChange={(v: string) => {
+          const option = options.find((o) => String(o) === v);
+          if (option !== undefined) onChange(option);
+        }}
       >
-        <SelectTrigger id={id}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.entries(LABEL_MODES).map(([v, label]) => (
-            <SelectItem key={v} value={v}>
-              {label}
-            </SelectItem>
+        <TabsList aria-labelledby={`${id}-label`}>
+          {options.map((o) => (
+            <TabsTrigger key={o} value={String(o)} className="px-3">
+              {format(o)}
+            </TabsTrigger>
           ))}
-        </SelectContent>
-      </Select>
+        </TabsList>
+      </Tabs>
     </div>
   );
 }

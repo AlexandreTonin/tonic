@@ -1,9 +1,8 @@
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { LinkRow, Related } from '@/components/theory/related';
-import { RootTabs } from '@/components/theory/theory-controls';
+import { ChoiceTabs, RootTabs } from '@/components/theory/theory-controls';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getFretboard, getHarmonicField } from '@/lib/theory/engine';
 import { cn } from '@/lib/utils';
 import { getRouteApi, Link } from '@tanstack/react-router';
@@ -13,6 +12,8 @@ const route = getRouteApi('/harmonic-field');
 const FRETS = 22;
 const MODES = { major: 'Maior', minor: 'Menor' } as const;
 const SIZES = { sevenths: 'Tétrades', triads: 'Tríades' } as const;
+const MODE_IDS = Object.keys(MODES) as (keyof typeof MODES)[];
+const SIZE_IDS = Object.keys(SIZES) as (keyof typeof SIZES)[];
 
 export function HarmonicFieldPage() {
   const search = route.useSearch();
@@ -57,36 +58,28 @@ export function HarmonicFieldPage() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-6">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <RootTabs
           id="field-root"
           value={root}
           onChange={(root) => setSearch({ root })}
         />
-        <Tabs
+        <ChoiceTabs
+          id="field-mode"
+          label="Modo"
+          options={MODE_IDS}
           value={mode}
-          onValueChange={(mode: typeof search.mode) => setSearch({ mode })}
-        >
-          <TabsList aria-label="Modo">
-            {Object.entries(MODES).map(([value, label]) => (
-              <TabsTrigger key={value} value={value} className="px-3">
-                {label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-        <Tabs
+          onChange={(mode) => setSearch({ mode })}
+          format={(mode) => MODES[mode]}
+        />
+        <ChoiceTabs
+          id="field-size"
+          label="Acordes"
+          options={SIZE_IDS}
           value={size}
-          onValueChange={(size: typeof search.size) => setSearch({ size })}
-        >
-          <TabsList aria-label="Acordes">
-            {Object.entries(SIZES).map(([value, label]) => (
-              <TabsTrigger key={value} value={value} className="px-3">
-                {label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+          onChange={(size) => setSearch({ size })}
+          format={(size) => SIZES[size]}
+        />
         {mode === 'minor' && (
           <div className="flex items-center gap-2">
             <Switch

@@ -5,12 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from '@/components/ui/dropdown-menu';
+import { MenuButton } from '@/components/ui/menu-button';
 import { useMetronome } from '@/hooks/use-metronome';
 import {
   loadVoice,
@@ -20,7 +22,7 @@ import {
 } from '@/lib/rhythm-sounds';
 import { getRhythm, listRhythms, scoreRhythmTest } from '@/lib/theory/engine';
 import { getRouteApi, Link } from '@tanstack/react-router';
-import { Play, Square, Timer } from 'lucide-react';
+import { Play, Square, Timer, Volume2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const route = getRouteApi('/rhythm/$id');
@@ -200,7 +202,7 @@ export function RhythmPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-6">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <CatalogSelect
           id="rhythm-id"
           label="Padrão"
@@ -212,6 +214,18 @@ export function RhythmPage() {
             navigate({ to: '/rhythm/$id', params: { id }, search });
           }}
         />
+      </div>
+
+      <RhythmGrid
+        grid={data.grid}
+        figures={data.figures}
+        meter={data.meter}
+        stepsPerBeat={data.stepsPerBeat}
+        current={step}
+        offsets={result ? offsetsByStep(data, result) : undefined}
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <div className="flex items-center gap-2">
           <Label htmlFor="rhythm-bpm">BPM</Label>
           <Input
@@ -232,77 +246,69 @@ export function RhythmPage() {
             onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="rhythm-sound">Som</Label>
-          <Select
-            value={sound}
-            items={SOUND_LABELS}
-            onValueChange={(value) => {
-              if (!value) return;
-              stop();
-              navigate({
-                to: '.',
-                search: { ...search, sound: value as SoundId },
-                replace: true,
-              });
-            }}
-          >
-            <SelectTrigger id="rhythm-sound" className="min-w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(SOUND_LABELS).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <RhythmGrid
-        grid={data.grid}
-        figures={data.figures}
-        meter={data.meter}
-        stepsPerBeat={data.stepsPerBeat}
-        current={step}
-        offsets={result ? offsetsByStep(data, result) : undefined}
-      />
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          disabled={metronome.loading || voiceLoading}
-          onClick={() => (mode === 'play' ? stop() : void play())}
-        >
-          {mode === 'play' ? (
-            <Square data-icon="inline-start" />
-          ) : (
-            <Play data-icon="inline-start" />
+        <div className="flex flex-wrap items-center gap-1">
+          {(metronome.loading || voiceLoading) && (
+            <span role="status" className="text-sm text-muted-foreground">
+              Carregando som…
+            </span>
           )}
-          {mode === 'play' ? 'Parar' : 'Tocar em loop'}
-        </Button>
-        <Button
-          variant="outline"
-          disabled={metronome.loading}
-          onClick={() => (mode === 'test' ? stop() : startTest())}
-        >
-          <Timer data-icon="inline-start" />
-          {mode === 'test' ? 'Cancelar teste' : 'Testar precisão'}
-        </Button>
-        {(metronome.loading || voiceLoading) && (
-          <span className="text-sm text-muted-foreground">Carregando som…</span>
-        )}
-        {voiceFailed && (
-          <span className="text-sm text-muted-foreground">
-            Não foi possível carregar o som escolhido.
-          </span>
-        )}
-        {metronome.failed && (
-          <span className="text-sm text-muted-foreground">
-            Não foi possível iniciar o áudio.
-          </span>
-        )}
+          {voiceFailed && (
+            <span role="status" className="text-sm text-muted-foreground">
+              Não foi possível carregar o som escolhido.
+            </span>
+          )}
+          {metronome.failed && (
+            <span role="status" className="text-sm text-muted-foreground">
+              Não foi possível iniciar o áudio.
+            </span>
+          )}
+          <Button
+            disabled={metronome.loading || voiceLoading}
+            onClick={() => (mode === 'play' ? stop() : void play())}
+          >
+            {mode === 'play' ? (
+              <Square data-icon="inline-start" />
+            ) : (
+              <Play data-icon="inline-start" />
+            )}
+            {mode === 'play' ? 'Parar' : 'Tocar em loop'}
+          </Button>
+          <Button
+            variant="outline"
+            disabled={metronome.loading}
+            onClick={() => (mode === 'test' ? stop() : startTest())}
+          >
+            <Timer data-icon="inline-start" />
+            {mode === 'test' ? 'Cancelar teste' : 'Testar precisão'}
+          </Button>
+          <DropdownMenu>
+            <MenuButton icon={Volume2} label={`Som: ${SOUND_LABELS[sound]}`}>
+              {SOUND_LABELS[sound]}
+            </MenuButton>
+            <DropdownMenuContent align="end" className="w-auto min-w-48">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Som</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={sound}
+                  onValueChange={(value: SoundId) => {
+                    stop();
+                    navigate({
+                      to: '.',
+                      search: { ...search, sound: value },
+                      replace: true,
+                    });
+                  }}
+                >
+                  {Object.entries(SOUND_LABELS).map(([value, label]) => (
+                    <DropdownMenuRadioItem key={value} value={value}>
+                      {label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {mode === 'test' && (

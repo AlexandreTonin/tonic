@@ -4,6 +4,8 @@ import { ScalePage } from '@/routes/scales';
 import { createRoute, stripSearchParams } from '@tanstack/react-router';
 import { rootRoute } from './root';
 import {
+  LICK_DEFAULTS,
+  lickSearch,
   positionSearch,
   theorySearch,
   THEORY_DEFAULTS,
@@ -21,6 +23,9 @@ export const scaleRoute = createRoute({
   validateSearch: (search: RawSearch) => ({
     ...theorySearch(search),
     position: positionSearch(search),
+    ...lickSearch(search),
   }),
-  search: { middlewares: [stripSearchParams(THEORY_DEFAULTS)] },
+  search: {
+    middlewares: [stripSearchParams({ ...THEORY_DEFAULTS, ...LICK_DEFAULTS })],
+  },
 });

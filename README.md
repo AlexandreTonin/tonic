@@ -13,6 +13,7 @@ O Tonic conecta teoria e prática: cada escala, acorde, arpejo, intervalo e prog
 **Biblioteca**
 
 - **Escalas**: pentatônicas e blues, os sete modos da escala maior, menor harmônica, menor melódica e escalas simétricas. Cinco posições (CAGED), rótulos em notas ou intervalos, tocar a escala.
+- **Licks**: nas pentatônicas e escalas blues, gerador de licks de blues (shuffle, blue notes, bends e releases) na posição escolhida ou atravessando para a seguinte. Estilo, compassos e modo iniciante; tab com a nota tocando destacada; loop, contagem, aceleração a cada volta e base de blues (bateria, baixo e piano); treino de ouvido; licks salvos no navegador; explicação opcional de cada nota (forma da frase, apoios, tensões e resolução sobre o acorde dominante). O lick fica no link e pode ser impresso ou baixado em PNG.
 - **Acordes**: tríades, sus e power chords, tétrades, sextas e extensões. Braço com as notas do acorde ou uma forma específica, diagramas de todas as formas com a tônica no baixo, tocar cada forma.
 - **Arpejos**: cinco posições e "Toque sobre", com as sobreposições diatônicas (Am7 sobre Fmaj7 soa como 3 5 7 9) e o braço em graus sobre o acorde escolhido.
 - **Intervalos**: simples e compostos, com tamanho, inversão, consonância e som subindo, descendo ou junto.

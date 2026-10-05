@@ -1,35 +1,38 @@
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from '@/components/ui/dropdown-menu';
+import { MenuButton } from '@/components/ui/menu-button';
 import { useTone } from '@/hooks/use-guitar';
 import { TONE_LABELS, type ToneId } from '@/lib/tone';
+import { Guitar } from 'lucide-react';
 
-export function ToneSelect({ id }: { id: string }) {
+export function ToneMenu() {
   const [tone, setTone] = useTone();
   return (
-    <div className="flex items-center gap-2">
-      <Label htmlFor={id}>Tom</Label>
-      <Select
-        value={tone}
-        items={TONE_LABELS}
-        onValueChange={(value) => value && setTone(value as ToneId)}
-      >
-        <SelectTrigger id={id} className="min-w-44">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.entries(TONE_LABELS).map(([value, label]) => (
-            <SelectItem key={value} value={value}>
-              {label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <DropdownMenu>
+      <MenuButton icon={Guitar} label={`Timbre: ${TONE_LABELS[tone]}`}>
+        {TONE_LABELS[tone]}
+      </MenuButton>
+      <DropdownMenuContent align="end" className="w-auto min-w-48">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Timbre</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            value={tone}
+            onValueChange={(value: ToneId) => setTone(value)}
+          >
+            {Object.entries(TONE_LABELS).map(([value, label]) => (
+              <DropdownMenuRadioItem key={value} value={value}>
+                {label}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

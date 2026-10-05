@@ -1,10 +1,10 @@
-import { ToneSelect } from '@/components/audio/tone-select';
+import { ToneMenu } from '@/components/audio/tone-select';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { LABEL_NAMES } from '@/lib/labels';
 import { LinkRow, Related } from '@/components/theory/related';
 import {
   CatalogSelect,
-  LabelModeSelect,
+  LabelMenu,
   PositionTabs,
   RootTabs,
 } from '@/components/theory/theory-controls';
@@ -19,7 +19,7 @@ import {
 } from '@/lib/theory/engine';
 import { cn } from '@/lib/utils';
 import { getRouteApi, Link } from '@tanstack/react-router';
-import { Play } from 'lucide-react';
+import { Play, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 const route = getRouteApi('/arpeggios/$id');
@@ -120,77 +120,84 @@ export function ArpeggioPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-6">
-        <RootTabs
-          id="arpeggio-root"
-          value={root}
-          onChange={(root) => setSearch({ root, over: undefined })}
-        />
-        <CatalogSelect
-          id="arpeggio-id"
-          label="Arpejo"
-          items={CHORDS}
-          value={id}
-          onChange={(id) =>
-            navigate({
-              to: '/arpeggios/$id',
-              params: { id },
-              search: { ...search, over: undefined },
-            })
-          }
-        />
-        {!over && (
-          <LabelModeSelect
-            id="arpeggio-label-mode"
-            value={labels}
-            onChange={(labels) => setSearch({ labels })}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <CatalogSelect
+            id="arpeggio-id"
+            label="Arpejo"
+            items={CHORDS}
+            value={id}
+            onChange={(id) =>
+              navigate({
+                to: '/arpeggios/$id',
+                params: { id },
+                search: { ...search, over: undefined },
+              })
+            }
           />
-        )}
-      </div>
+          <RootTabs
+            id="arpeggio-root"
+            value={root}
+            onChange={(root) => setSearch({ root, over: undefined })}
+          />
+        </div>
 
-      <div className="flex flex-wrap items-center gap-6">
-        <PositionTabs
-          id="arpeggio-position"
-          count={arpeggio.positions}
-          value={position}
-          onChange={(position) => setSearch({ position })}
+        <PrintableFretboard
+          toolbar={
+            <PositionTabs
+              id="arpeggio-position"
+              count={arpeggio.positions}
+              value={position}
+              onChange={(position) => setSearch({ position })}
+            />
+          }
+          actions={
+            <>
+              {guitar.failed && (
+                <span role="status" className="text-sm text-muted-foreground">
+                  Não foi possível carregar o som.
+                </span>
+              )}
+              <Button
+                variant="outline"
+                disabled={!midis.length || guitar.loading}
+                onClick={() => guitar.upAndDown(midis, setPlayingMidi)}
+              >
+                <Play data-icon="inline-start" />
+                {guitar.loading ? (
+                  'Carregando som…'
+                ) : (
+                  <>
+                    Tocar<span className="sr-only"> arpejo</span>
+                  </>
+                )}
+              </Button>
+              <ToneMenu />
+              {over ? (
+                <Button
+                  variant="ghost"
+                  aria-label={`Limpar graus sobre ${over}`}
+                  onClick={() => setSearch({ over: undefined })}
+                >
+                  <X data-icon="inline-start" />
+                  Graus sobre {over}
+                </Button>
+              ) : (
+                <LabelMenu
+                  value={labels}
+                  onChange={(labels) => setSearch({ labels })}
+                />
+              )}
+            </>
+          }
+          title={`Arpejo de ${arpeggio.symbol}${position ? ` · posição ${position}` : ''}${over ? ` · sobre ${over}` : ''}`}
+          details={`Notas: ${arpeggio.notes.join(' ')} · Fórmula: ${arpeggio.intervals.join(' ')} · Rótulo: ${over ? `graus sobre ${over}` : LABEL_NAMES[labels]}`}
+          positions={positions}
+          frets={FRETS}
+          activeMidi={playingMidi}
+          label={`Braço com o arpejo de ${arpeggio.symbol}${position ? `, posição ${position}` : ''}${over ? ` em graus sobre ${over}` : ''}`}
         />
-        <Button
-          variant="outline"
-          disabled={!midis.length || guitar.loading}
-          onClick={() => guitar.upAndDown(midis, setPlayingMidi)}
-        >
-          <Play data-icon="inline-start" />
-          {guitar.loading ? 'Carregando som…' : 'Tocar arpejo'}
-        </Button>
-        <ToneSelect id="arpeggio-tone" />
-        {guitar.failed && (
-          <span className="text-sm text-muted-foreground">
-            Não foi possível carregar o som.
-          </span>
-        )}
-        {over && (
-          <span className="text-muted-foreground">
-            Graus sobre {over}{' '}
-            <button
-              type="button"
-              className="text-foreground underline-offset-4 hover:underline"
-              onClick={() => setSearch({ over: undefined })}
-            >
-              Limpar
-            </button>
-          </span>
-        )}
       </div>
-
-      <PrintableFretboard
-        title={`Arpejo de ${arpeggio.symbol}${position ? ` · posição ${position}` : ''}${over ? ` · sobre ${over}` : ''}`}
-        details={`Notas: ${arpeggio.notes.join(' ')} · Fórmula: ${arpeggio.intervals.join(' ')} · Rótulo: ${over ? `graus sobre ${over}` : LABEL_NAMES[labels]}`}
-        positions={positions}
-        frets={FRETS}
-        activeMidi={playingMidi}
-        label={`Braço com o arpejo de ${arpeggio.symbol}${position ? `, posição ${position}` : ''}${over ? ` em graus sobre ${over}` : ''}`}
-      />
 
       <Related
         title="Toque sobre"
