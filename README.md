@@ -6,7 +6,7 @@ Teoria musical para guitarra, no braço. Gratuito e open source.
 
 O Tonic conecta teoria e prática: cada escala, acorde, arpejo, intervalo e progressão aparece no braço da guitarra, com som, e se liga aos outros itens da biblioteca. Tudo roda no navegador: não há backend, conta ou banco de dados.
 
-<img width="1685" height="698" alt="image" src="https://github.com/user-attachments/assets/44f953c9-3e66-4a77-9d39-2846e50d6d7c" />
+https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 
 ## Funcionalidades
 
