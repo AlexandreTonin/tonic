@@ -1,8 +1,11 @@
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import { TuningMenu } from '@/components/fretboard/tuning-menu';
 import { LinkRow, Related } from '@/components/theory/related';
 import { ChoiceTabs, RootTabs } from '@/components/theory/theory-controls';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { useTuning } from '@/hooks/use-tuning';
+import { TUNINGS } from '@/lib/theory/core';
 import { getFretboard, getHarmonicField } from '@/lib/theory/engine';
 import { cn } from '@/lib/utils';
 import { getRouteApi, Link } from '@tanstack/react-router';
@@ -28,6 +31,7 @@ export function HarmonicFieldPage() {
     [root, mode, size, dominant],
   );
   const chord = field.chords[degree - 1];
+  const [tuning] = useTuning();
   const positions = useMemo(
     () =>
       getFretboard({
@@ -35,9 +39,10 @@ export function HarmonicFieldPage() {
         root: chord.root,
         labelMode: 'degrees',
         context: field.root,
+        tuning,
         frets: FRETS,
       }),
-    [chord.chordId, chord.root, field.root],
+    [chord.chordId, chord.root, field.root, tuning],
   );
 
   const keyRoot = field.root;
@@ -126,6 +131,8 @@ export function HarmonicFieldPage() {
           details={`${chord.degree} · Notas: ${chord.notes.join(' ')} · Campo harmônico de ${keyName} (${size === 'triads' ? 'tríades' : 'tétrades'}) · Rótulo: graus`}
           positions={positions}
           frets={FRETS}
+          strings={TUNINGS[tuning].length}
+          actions={<TuningMenu />}
           label={`Braço com ${chord.symbol} em graus de ${keyName}`}
         />
       </div>

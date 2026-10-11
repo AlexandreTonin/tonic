@@ -2,6 +2,8 @@ import { ToneMenu } from '@/components/audio/tone-select';
 import { ChordDiagram } from '@/components/chord-diagram/chord-diagram';
 import { ExportButtons } from '@/components/fretboard/export-buttons';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import { TuningMenu } from '@/components/fretboard/tuning-menu';
+import { useTuning } from '@/hooks/use-tuning';
 import type { ExportLayout } from '@/lib/fretboard-export';
 import { LABEL_NAMES } from '@/lib/labels';
 import {
@@ -13,6 +15,7 @@ import {
 import { ViewToggle } from '@/components/theory/view-toggle';
 import { Button } from '@/components/ui/button';
 import { useGuitar } from '@/hooks/use-guitar';
+import { TUNINGS } from '@/lib/theory/core';
 import {
   getChord,
   getChordVoicings,
@@ -57,19 +60,22 @@ export function ChordPage() {
       replace: true,
     });
 
+  const [tuning] = useTuning();
+
   const data = useMemo(() => {
     if (!CHORDS.some((c) => c.id === chordId)) return undefined;
     return {
       chord: getChord(chordId, root),
-      voicings: getChordVoicings(chordId, { root, labelMode }),
+      voicings: getChordVoicings(chordId, { root, labelMode, tuning }),
       positions: getFretboard({
         item: `chord:${chordId}`,
         root,
         labelMode,
+        tuning,
         frets: FRETS,
       }),
     };
-  }, [chordId, root, labelMode]);
+  }, [chordId, root, labelMode, tuning]);
 
   const guitar = useGuitar();
   const shapesRef = useRef<HTMLDivElement>(null);
@@ -190,6 +196,7 @@ export function ChordPage() {
                     )}
                   </Button>
                 )}
+                <TuningMenu />
                 <ToneMenu />
                 <LabelMenu
                   value={labelMode}
@@ -205,6 +212,7 @@ export function ChordPage() {
             details={`Notas: ${chord.notes.join(' ')} · Fórmula: ${chord.intervals.join(' ')} · Rótulo: ${LABEL_NAMES[labelMode]}`}
             positions={positions}
             frets={FRETS}
+            strings={TUNINGS[tuning].length}
             barre={view === 'shape' ? shape?.barre : null}
             exportContent={
               view === 'shape' &&

@@ -3,6 +3,8 @@ import { ExportButtons } from '@/components/fretboard/export-buttons';
 import { Fretboard } from '@/components/fretboard/fretboard';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { TabSvg } from '@/components/fretboard/tab-svg';
+import { TuningMenu } from '@/components/fretboard/tuning-menu';
+import { useTuning } from '@/hooks/use-tuning';
 import { LABEL_NAMES } from '@/lib/labels';
 import {
   CatalogSelect,
@@ -41,6 +43,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { audioContext, startNote, useGuitar } from '@/hooks/use-guitar';
 import { useProgressionPlayer } from '@/hooks/use-progression-player';
 import type { Track } from '@/lib/backing';
+import { TUNINGS } from '@/lib/theory/core';
 import {
   getChord,
   getFretboard,
@@ -130,6 +133,8 @@ export function ScalePage() {
   const activePosition =
     position && position <= positionCount ? position : undefined;
 
+  const [tuning] = useTuning();
+
   const view = useMemo(() => {
     if (!SCALES.some((s) => s.id === scaleId)) return undefined;
     return {
@@ -138,6 +143,7 @@ export function ScalePage() {
         item: `scale:${scaleId}`,
         root,
         labelMode,
+        tuning,
         frets: FRETS,
         position: activePosition,
       }),
@@ -145,6 +151,7 @@ export function ScalePage() {
         item: `scale:${scaleId}`,
         root,
         labelMode,
+        tuning,
         frets: FRETS,
       }),
       lick:
@@ -153,6 +160,7 @@ export function ScalePage() {
               style: lickStyle,
               easy,
               span,
+              tuning,
             })
           : undefined,
     };
@@ -166,6 +174,7 @@ export function ScalePage() {
     lickStyle,
     easy,
     span,
+    tuning,
   ]);
 
   const guitar = useGuitar();
@@ -363,6 +372,7 @@ export function ScalePage() {
         style: lickStyle,
         easy,
         span,
+        tuning,
       }),
     );
   };
@@ -451,6 +461,7 @@ export function ScalePage() {
                   </>
                 )}
               </Button>
+              <TuningMenu />
               <ToneMenu />
               <LabelMenu
                 value={labelMode}
@@ -477,6 +488,7 @@ export function ScalePage() {
           details={`Notas: ${scale.notes.join(' ')} · Graus: ${scale.intervals.join(' ')} · Rótulo: ${LABEL_NAMES[labelMode]}`}
           positions={boardPositions}
           frets={FRETS}
+          strings={TUNINGS[tuning].length}
           activeMidi={answerHidden ? null : playingMidi}
           label={`Braço com ${scale.root} ${scale.name}${activePosition ? `, posição ${activePosition}` : ''}`}
         />
@@ -813,6 +825,7 @@ export function ScalePage() {
                       <Fretboard
                         positions={boardPositions}
                         frets={FRETS}
+                        strings={TUNINGS[tuning].length}
                         label={`Posição ${lickPosition} de ${scale.root} ${scale.name}`}
                       />
                     </div>

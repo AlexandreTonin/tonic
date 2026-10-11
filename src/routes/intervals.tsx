@@ -1,11 +1,13 @@
 import { ToneMenu } from '@/components/audio/tone-select';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import { TuningMenu } from '@/components/fretboard/tuning-menu';
 import { LinkRow, Related } from '@/components/theory/related';
 import { CatalogSelect, RootTabs } from '@/components/theory/theory-controls';
 import { ViewToggle } from '@/components/theory/view-toggle';
 import { Button } from '@/components/ui/button';
 import { useGuitar } from '@/hooks/use-guitar';
-import type { Consonance } from '@/lib/theory/core';
+import { useTuning } from '@/hooks/use-tuning';
+import { type Consonance, TUNINGS } from '@/lib/theory/core';
 import { getFretboard, getInterval, listIntervals } from '@/lib/theory/engine';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { ArrowDown, ArrowUp, Play } from 'lucide-react';
@@ -25,6 +27,8 @@ export function IntervalPage() {
   const { root } = route.useSearch();
   const navigate = route.useNavigate();
 
+  const [tuning] = useTuning();
+
   const data = useMemo(() => {
     if (!INTERVALS.some((i) => i.id === id)) return undefined;
     return {
@@ -33,10 +37,11 @@ export function IntervalPage() {
         item: `interval:${id}`,
         root,
         labelMode: 'intervals',
+        tuning,
         frets: FRETS,
       }),
     };
-  }, [id, root]);
+  }, [id, root, tuning]);
 
   const guitar = useGuitar();
 
@@ -154,6 +159,7 @@ export function IntervalPage() {
                 <Play data-icon="inline-start" />
                 Junto
               </Button>
+              <TuningMenu />
               <ToneMenu />
             </>
           }
@@ -161,6 +167,7 @@ export function IntervalPage() {
           details={`Notas: ${interval.notes.join(' – ')} · ${interval.semitones} ${interval.semitones === 1 ? 'semitom' : 'semitons'} · Rótulo: intervalos`}
           positions={positions}
           frets={FRETS}
+          strings={TUNINGS[tuning].length}
           label={`Braço com ${interval.notes.join(' e ')}`}
         />
       </div>

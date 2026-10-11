@@ -1,5 +1,7 @@
 import { ToneMenu } from '@/components/audio/tone-select';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import { TuningMenu } from '@/components/fretboard/tuning-menu';
+import { useTuning } from '@/hooks/use-tuning';
 import { LABEL_NAMES } from '@/lib/labels';
 import { LinkRow, Related } from '@/components/theory/related';
 import {
@@ -11,6 +13,7 @@ import {
 import { ViewToggle } from '@/components/theory/view-toggle';
 import { Button } from '@/components/ui/button';
 import { useGuitar } from '@/hooks/use-guitar';
+import { TUNINGS } from '@/lib/theory/core';
 import {
   getArpeggio,
   getArpeggioOverlays,
@@ -52,6 +55,7 @@ export function ArpeggioPage() {
     ? selectedOver
     : undefined;
 
+  const [tuning] = useTuning();
   const positions = useMemo(
     () =>
       base &&
@@ -60,10 +64,11 @@ export function ArpeggioPage() {
         root,
         labelMode: over ? 'degrees' : labels,
         context: over,
+        tuning,
         frets: FRETS,
         position,
       }),
-    [base, id, root, labels, over, position],
+    [base, id, root, labels, over, position, tuning],
   );
 
   const guitar = useGuitar();
@@ -172,6 +177,7 @@ export function ArpeggioPage() {
                   </>
                 )}
               </Button>
+              <TuningMenu />
               <ToneMenu />
               {over ? (
                 <Button
@@ -194,6 +200,7 @@ export function ArpeggioPage() {
           details={`Notas: ${arpeggio.notes.join(' ')} · Fórmula: ${arpeggio.intervals.join(' ')} · Rótulo: ${over ? `graus sobre ${over}` : LABEL_NAMES[labels]}`}
           positions={positions}
           frets={FRETS}
+          strings={TUNINGS[tuning].length}
           activeMidi={playingMidi}
           label={`Braço com o arpejo de ${arpeggio.symbol}${position ? `, posição ${position}` : ''}${over ? ` em graus sobre ${over}` : ''}`}
         />
