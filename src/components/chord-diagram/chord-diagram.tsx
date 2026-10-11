@@ -1,7 +1,6 @@
 import { DOT_STYLE } from '@/components/fretboard/dot-style';
 import type { Voicing } from '@/lib/theory/core';
 
-const STRINGS = 6;
 const ROWS = 4;
 const STRING_GAP = 22;
 const FRET_GAP = 28;
@@ -9,13 +8,13 @@ const LEFT = 26;
 const TOP = 30;
 const DOT_R = 10;
 
-const stringX = (string: number) => LEFT + (STRINGS - string) * STRING_GAP;
-
 type ChordDiagramProps = { voicing: Voicing; label: string };
 
 export function ChordDiagram({ voicing, label }: ChordDiagramProps) {
   const { frets, baseFret, barre, positions } = voicing;
-  const width = LEFT + (STRINGS - 1) * STRING_GAP + 14;
+  const strings = frets.length;
+  const stringX = (string: number) => LEFT + (strings - string) * STRING_GAP;
+  const width = LEFT + (strings - 1) * STRING_GAP + 14;
   const height = TOP + ROWS * FRET_GAP + 6;
   const rowY = (fret: number) => TOP + (fret - baseFret + 0.5) * FRET_GAP;
   const tab = frets.map((f) => f ?? 'x').join(' ');
@@ -31,7 +30,7 @@ export function ChordDiagram({ voicing, label }: ChordDiagramProps) {
         {Array.from({ length: ROWS + 1 }, (_, i) => (
           <line
             key={i}
-            x1={stringX(STRINGS)}
+            x1={stringX(strings)}
             x2={stringX(1)}
             y1={TOP + i * FRET_GAP}
             y2={TOP + i * FRET_GAP}
@@ -43,7 +42,7 @@ export function ChordDiagram({ voicing, label }: ChordDiagramProps) {
             strokeWidth={i === 0 && baseFret === 1 ? 4 : 1.5}
           />
         ))}
-        {Array.from({ length: STRINGS }, (_, i) => (
+        {Array.from({ length: strings }, (_, i) => (
           <line
             key={i}
             x1={stringX(i + 1)}
@@ -71,7 +70,7 @@ export function ChordDiagram({ voicing, label }: ChordDiagramProps) {
           f === null ? (
             <text
               key={idx}
-              x={stringX(STRINGS - idx)}
+              x={stringX(strings - idx)}
               y={TOP - 13}
               textAnchor="middle"
               dominantBaseline="central"
@@ -87,7 +86,9 @@ export function ChordDiagram({ voicing, label }: ChordDiagramProps) {
           <rect
             x={stringX(barre.fromString) - DOT_R}
             y={rowY(barre.fret) - DOT_R}
-            width={stringX(barre.toString) - stringX(barre.fromString) + 2 * DOT_R}
+            width={
+              stringX(barre.toString) - stringX(barre.fromString) + 2 * DOT_R
+            }
             height={2 * DOT_R}
             rx={DOT_R}
             fill="var(--fret-chord-tone)"
