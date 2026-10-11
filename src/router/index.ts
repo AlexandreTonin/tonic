@@ -18,6 +18,7 @@ import { progressionsRoute } from './progressions';
 import { rhythmRoute } from './rhythm';
 import { rhythmsRoute } from './rhythms';
 import { rootRoute } from './root';
+import { tunerRoute } from './tuner';
 import { techniqueRoute } from './technique';
 import { techniqueExerciseRoute } from './technique-exercise';
 import { scaleRoute } from './scale';
@@ -46,6 +47,7 @@ export const router = createRouter({
     earTrainingRoute,
     harmonicQuizRoute,
     metronomeRoute,
+    tunerRoute,
     placeholderRoute,
   ]),
 });
