@@ -33,6 +33,8 @@ export type RawSearch = {
   easy?: boolean;
   span?: boolean;
   tuning?: string;
+  region?: string;
+  strings?: string | number;
 } & SearchSchemaInput;
 
 const PITCH_CLASS = /^[A-G][#b]?$/;
