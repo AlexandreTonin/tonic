@@ -1,4 +1,5 @@
 import { DOT_STYLE } from '@/components/fretboard/dot-style';
+import { useLeftHanded } from '@/hooks/use-left-handed';
 import type { Barre, FretPosition } from '@/lib/theory/core';
 import { cn } from '@/lib/utils';
 
@@ -35,7 +36,9 @@ export function Fretboard({
   strings = DEFAULT_STRINGS,
   className,
 }: FretboardProps) {
+  const [leftHanded] = useLeftHanded();
   const width = OPEN_W + frets * FRET_W + 8;
+  const x = (value: number) => (leftHanded ? width - value : value);
   const boardBottom = stringY(strings);
   const height = boardBottom + BOTTOM;
   const midY = (stringY(1) + boardBottom) / 2;
@@ -54,15 +57,15 @@ export function Fretboard({
           SINGLE_INLAYS.includes(f) ? (
             <circle
               key={f}
-              cx={fretX(f)}
+              cx={x(fretX(f))}
               cy={midY}
               r={4}
               fill="var(--fret-wire)"
             />
           ) : DOUBLE_INLAYS.includes(f) ? (
             <g key={f} fill="var(--fret-wire)">
-              <circle cx={fretX(f)} cy={midY - STRING_GAP} r={4} />
-              <circle cx={fretX(f)} cy={midY + STRING_GAP} r={4} />
+              <circle cx={x(fretX(f))} cy={midY - STRING_GAP} r={4} />
+              <circle cx={x(fretX(f))} cy={midY + STRING_GAP} r={4} />
             </g>
           ) : null,
         )}
@@ -70,8 +73,8 @@ export function Fretboard({
         {inlays.map((f) => (
           <line
             key={f}
-            x1={OPEN_W + f * FRET_W}
-            x2={OPEN_W + f * FRET_W}
+            x1={x(OPEN_W + f * FRET_W)}
+            x2={x(OPEN_W + f * FRET_W)}
             y1={stringY(1)}
             y2={boardBottom}
             stroke="var(--fret-wire)"
@@ -79,8 +82,8 @@ export function Fretboard({
           />
         ))}
         <line
-          x1={OPEN_W}
-          x2={OPEN_W}
+          x1={x(OPEN_W)}
+          x2={x(OPEN_W)}
           y1={stringY(1)}
           y2={boardBottom}
           stroke="var(--foreground)"
@@ -90,8 +93,8 @@ export function Fretboard({
         {Array.from({ length: strings }, (_, i) => i + 1).map((s) => (
           <line
             key={s}
-            x1={OPEN_W}
-            x2={width - 8}
+            x1={x(OPEN_W)}
+            x2={x(width - 8)}
             y1={stringY(s)}
             y2={stringY(s)}
             stroke="var(--fret-string)"
@@ -104,7 +107,7 @@ export function Fretboard({
           .map((f) => (
             <text
               key={f}
-              x={fretX(f)}
+              x={x(fretX(f))}
               y={height - 8}
               textAnchor="middle"
               fontSize={11}
@@ -116,7 +119,7 @@ export function Fretboard({
 
         {barre && (
           <rect
-            x={fretX(barre.fret) - DOT_R}
+            x={x(fretX(barre.fret)) - DOT_R}
             y={stringY(barre.toString) - DOT_R}
             width={2 * DOT_R}
             height={
@@ -134,7 +137,7 @@ export function Fretboard({
               {p.midi === activeMidi && p.role !== 'outside' && (
                 <circle
                   key={activeMidi}
-                  cx={fretX(p.fret)}
+                  cx={x(fretX(p.fret))}
                   cy={stringY(p.string)}
                   r={DOT_R + 3}
                   fill="none"
@@ -144,7 +147,7 @@ export function Fretboard({
                 />
               )}
               <circle
-                cx={fretX(p.fret)}
+                cx={x(fretX(p.fret))}
                 cy={stringY(p.string)}
                 r={DOT_R}
                 fill={style.fill}
@@ -152,7 +155,7 @@ export function Fretboard({
                 strokeWidth={style.stroke ? 1.5 : undefined}
               />
               <text
-                x={fretX(p.fret)}
+                x={x(fretX(p.fret))}
                 y={stringY(p.string)}
                 textAnchor="middle"
                 dominantBaseline="central"

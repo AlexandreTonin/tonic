@@ -1,18 +1,22 @@
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { MenuButton } from '@/components/ui/menu-button';
+import { useLeftHanded } from '@/hooks/use-left-handed';
 import { useTuning } from '@/hooks/use-tuning';
 import { TUNING_IDS, TUNING_LABELS, TUNING_SHORT_LABELS } from '@/lib/tuning';
 import { SlidersVertical } from 'lucide-react';
 
 export function TuningMenu() {
   const [tuning, setTuning] = useTuning();
+  const [leftHanded, setLeftHanded] = useLeftHanded();
   return (
     <DropdownMenu>
       <MenuButton
@@ -34,6 +38,15 @@ export function TuningMenu() {
               </DropdownMenuRadioItem>
             ))}
           </DropdownMenuRadioGroup>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuCheckboxItem
+            checked={leftHanded}
+            onCheckedChange={setLeftHanded}
+          >
+            Canhoto
+          </DropdownMenuCheckboxItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

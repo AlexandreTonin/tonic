@@ -1,4 +1,5 @@
 import { DOT_STYLE } from '@/components/fretboard/dot-style';
+import { useLeftHanded } from '@/hooks/use-left-handed';
 import type { Voicing } from '@/lib/theory/core';
 
 const ROWS = 4;
@@ -13,7 +14,9 @@ type ChordDiagramProps = { voicing: Voicing; label: string };
 export function ChordDiagram({ voicing, label }: ChordDiagramProps) {
   const { frets, baseFret, barre, positions } = voicing;
   const strings = frets.length;
-  const stringX = (string: number) => LEFT + (strings - string) * STRING_GAP;
+  const [leftHanded] = useLeftHanded();
+  const stringX = (string: number) =>
+    LEFT + (leftHanded ? string - 1 : strings - string) * STRING_GAP;
   const width = LEFT + (strings - 1) * STRING_GAP + 14;
   const height = TOP + ROWS * FRET_GAP + 6;
   const rowY = (fret: number) => TOP + (fret - baseFret + 0.5) * FRET_GAP;
@@ -84,10 +87,14 @@ export function ChordDiagram({ voicing, label }: ChordDiagramProps) {
 
         {barre && (
           <rect
-            x={stringX(barre.fromString) - DOT_R}
+            x={
+              Math.min(stringX(barre.fromString), stringX(barre.toString)) -
+              DOT_R
+            }
             y={rowY(barre.fret) - DOT_R}
             width={
-              stringX(barre.toString) - stringX(barre.fromString) + 2 * DOT_R
+              Math.abs(stringX(barre.toString) - stringX(barre.fromString)) +
+              2 * DOT_R
             }
             height={2 * DOT_R}
             rx={DOT_R}
