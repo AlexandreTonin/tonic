@@ -24,6 +24,7 @@ type FretboardProps = {
   barre?: Barre | null;
   activeMidi?: number | null;
   strings?: number;
+  onSelect?: (string: number, fret: number) => void;
   className?: string;
 };
 
@@ -34,6 +35,7 @@ export function Fretboard({
   barre,
   activeMidi,
   strings = DEFAULT_STRINGS,
+  onSelect,
   className,
 }: FretboardProps) {
   const [leftHanded] = useLeftHanded();
@@ -50,7 +52,7 @@ export function Fretboard({
         viewBox={`0 0 ${width} ${height}`}
         className="w-full min-w-[640px] tabular-nums"
         style={{ maxWidth: width }}
-        role="img"
+        role={onSelect ? 'group' : 'img'}
         aria-label={label}
       >
         {inlays.map((f) =>
@@ -168,6 +170,33 @@ export function Fretboard({
             </g>
           );
         })}
+
+        {onSelect &&
+          Array.from({ length: strings }, (_, i) => i + 1).flatMap((s) =>
+            Array.from({ length: frets + 1 }, (_, f) => {
+              const w = f === 0 ? OPEN_W : FRET_W;
+              return (
+                <rect
+                  key={`hit-${s}-${f}`}
+                  x={x(fretX(f)) - w / 2}
+                  y={stringY(s) - STRING_GAP / 2}
+                  width={w}
+                  height={STRING_GAP}
+                  fill="transparent"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Corda ${s}, casa ${f}`}
+                  className="cursor-pointer outline-none focus-visible:stroke-ring focus-visible:stroke-2"
+                  onClick={() => onSelect(s, f)}
+                  onKeyDown={(e) => {
+                    if (e.key !== 'Enter' && e.key !== ' ') return;
+                    e.preventDefault();
+                    onSelect(s, f);
+                  }}
+                />
+              );
+            }),
+          )}
       </svg>
     </div>
   );
