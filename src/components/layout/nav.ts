@@ -8,6 +8,7 @@ import {
   Layers,
   ListMusic,
   Network,
+  Puzzle,
   Repeat,
   Ruler,
   Target,
@@ -42,6 +43,7 @@ export const NAV: NavGroup[] = [
     items: [
       { to: '/fretboard-trainer', label: 'Notas no braço', icon: Target },
       { to: '/ear-training', label: 'Ouvido', icon: Ear },
+      { to: '/harmonic-quiz', label: 'Tons e graus', icon: Puzzle },
     ],
   },
   {

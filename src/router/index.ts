@@ -7,6 +7,7 @@ import { chordsRoute } from './chords';
 import { earTrainingRoute } from './ear-training';
 import { fretboardTrainerRoute } from './fretboard-trainer';
 import { harmonicFieldRoute } from './harmonic-field';
+import { harmonicQuizRoute } from './harmonic-quiz';
 import { indexRoute } from './index-route';
 import { intervalRoute } from './interval';
 import { intervalsRoute } from './intervals';
@@ -43,6 +44,7 @@ export const router = createRouter({
     rhythmRoute,
     fretboardTrainerRoute,
     earTrainingRoute,
+    harmonicQuizRoute,
     metronomeRoute,
     placeholderRoute,
   ]),
