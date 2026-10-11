@@ -34,6 +34,8 @@ export type RawSearch = {
   span?: boolean;
   tuning?: string;
   region?: string;
+  exercise?: string;
+  direction?: string;
   strings?: string | number;
 } & SearchSchemaInput;
 
