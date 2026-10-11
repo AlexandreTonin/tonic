@@ -1,7 +1,10 @@
 import { findChord } from '@/lib/theory/catalog';
 import { PAGES } from './pages';
-import { ChordPage } from '@/routes/chords';
-import { createRoute, stripSearchParams } from '@tanstack/react-router';
+import {
+  createRoute,
+  stripSearchParams,
+  lazyRouteComponent,
+} from '@tanstack/react-router';
 import { rootRoute } from './root';
 import { pick, theorySearch, THEORY_DEFAULTS, type RawSearch } from './search';
 
@@ -16,7 +19,7 @@ export const chordRoute = createRoute({
     item: (id: string) => findChord(id)?.name,
   },
   path: '/chords/$id',
-  component: ChordPage,
+  component: lazyRouteComponent(() => import('@/routes/chords'), 'ChordPage'),
   validateSearch: (search: RawSearch) => ({
     ...theorySearch(search),
     view: pick(search.view, CHORD_VIEWS, CHORD_DEFAULTS.view),

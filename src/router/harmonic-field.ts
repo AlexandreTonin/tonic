@@ -1,6 +1,9 @@
 import { PAGES } from './pages';
-import { HarmonicFieldPage } from '@/routes/harmonic-field';
-import { createRoute, stripSearchParams } from '@tanstack/react-router';
+import {
+  createRoute,
+  stripSearchParams,
+  lazyRouteComponent,
+} from '@tanstack/react-router';
 import { rootRoute } from './root';
 import { pick, rootSearch, type RawSearch } from './search';
 
@@ -18,7 +21,10 @@ export const harmonicFieldRoute = createRoute({
   getParentRoute: () => rootRoute,
   staticData: PAGES.harmonicField,
   path: '/harmonic-field',
-  component: HarmonicFieldPage,
+  component: lazyRouteComponent(
+    () => import('@/routes/harmonic-field'),
+    'HarmonicFieldPage',
+  ),
   validateSearch: (search: RawSearch) => {
     const degree = Number(search.degree);
     return {

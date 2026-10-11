@@ -1,10 +1,10 @@
+import { lazyRouteComponent } from '@tanstack/react-router';
 import { PAGES } from './pages';
-import { ChordsGallery } from '@/routes/galleries';
 import { exploreFirstRoute } from './explore-first';
 
 export const chordsRoute = exploreFirstRoute(
   '/chords',
-  ChordsGallery,
+  lazyRouteComponent(() => import('@/routes/galleries'), 'ChordsGallery'),
   'major',
   PAGES.chords,
 );

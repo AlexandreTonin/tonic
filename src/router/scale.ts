@@ -1,7 +1,10 @@
 import { findScale } from '@/lib/theory/catalog';
 import { PAGES } from './pages';
-import { ScalePage } from '@/routes/scales';
-import { createRoute, stripSearchParams } from '@tanstack/react-router';
+import {
+  createRoute,
+  stripSearchParams,
+  lazyRouteComponent,
+} from '@tanstack/react-router';
 import { rootRoute } from './root';
 import {
   LICK_DEFAULTS,
@@ -19,7 +22,7 @@ export const scaleRoute = createRoute({
     item: (id: string) => findScale(id)?.name,
   },
   path: '/scales/$id',
-  component: ScalePage,
+  component: lazyRouteComponent(() => import('@/routes/scales'), 'ScalePage'),
   validateSearch: (search: RawSearch) => ({
     ...theorySearch(search),
     position: positionSearch(search),

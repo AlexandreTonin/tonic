@@ -1,7 +1,10 @@
 import { findChord } from '@/lib/theory/catalog';
 import { PAGES } from './pages';
-import { ArpeggioPage } from '@/routes/arpeggios';
-import { createRoute, stripSearchParams } from '@tanstack/react-router';
+import {
+  createRoute,
+  stripSearchParams,
+  lazyRouteComponent,
+} from '@tanstack/react-router';
 import { rootRoute } from './root';
 import {
   positionSearch,
@@ -19,7 +22,10 @@ export const arpeggioRoute = createRoute({
     item: (id: string) => findChord(id)?.name,
   },
   path: '/arpeggios/$id',
-  component: ArpeggioPage,
+  component: lazyRouteComponent(
+    () => import('@/routes/arpeggios'),
+    'ArpeggioPage',
+  ),
   validateSearch: (search: RawSearch) => ({
     ...theorySearch(search),
     position: positionSearch(search),

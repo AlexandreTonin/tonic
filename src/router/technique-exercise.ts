@@ -1,7 +1,6 @@
 import { findExercise } from '@/lib/technique/catalog';
 import { PAGES } from './pages';
-import { TechniqueExercisePage } from '@/routes/technique-exercise';
-import { createRoute } from '@tanstack/react-router';
+import { createRoute, lazyRouteComponent } from '@tanstack/react-router';
 import { rootRoute } from './root';
 
 export const techniqueExerciseRoute = createRoute({
@@ -11,5 +10,8 @@ export const techniqueExerciseRoute = createRoute({
     item: (id: string) => findExercise(id)?.name,
   },
   path: '/technique/$id',
-  component: TechniqueExercisePage,
+  component: lazyRouteComponent(
+    () => import('@/routes/technique-exercise'),
+    'TechniqueExercisePage',
+  ),
 });
