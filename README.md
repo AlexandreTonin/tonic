@@ -23,6 +23,10 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 - **Técnica**: exercícios de palhetada, legato, cruzamento de cordas, sweep, tapping e troca de acordes, com padrão em tab, dicas e metrônomo.
 - **Ritmo**: padrões com grade, notação e setas de palhetada, loop com vários sons e teste de precisão.
 
+**Treino**
+
+- **Notas no braço**: encontre no braço a nota pedida ou diga qual nota está na casa marcada, escolhendo cordas e região. Sequência, acertos, precisão e melhor tempo salvos no navegador.
+
 **Ferramentas**
 
 - **Metrônomo**: acentos por tempo, compassos de 2/4 a 12/8, subdivisões, contagem, gap click, speed trainer, timer, atalhos de teclado e predefinições salvas no navegador.
