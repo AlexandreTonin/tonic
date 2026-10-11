@@ -1,11 +1,13 @@
 import { ToneMenu } from '@/components/audio/tone-select';
 import { ChordDiagram } from '@/components/chord-diagram/chord-diagram';
+import { CapoMenu } from '@/components/fretboard/capo-menu';
 import { ExportButtons } from '@/components/fretboard/export-buttons';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { TuningMenu } from '@/components/fretboard/tuning-menu';
 import { useTuning } from '@/hooks/use-tuning';
 import type { ExportLayout } from '@/lib/fretboard-export';
 import { LABEL_NAMES } from '@/lib/labels';
+import { shapeRoot } from '@/lib/roots';
 import {
   CatalogSelect,
   ChoiceTabs,
@@ -52,7 +54,7 @@ const shapeKey = (frets: (number | null)[]) =>
 export function ChordPage() {
   const { id: chordId } = route.useParams();
   const search = route.useSearch();
-  const { root, labels: labelMode, view, shape: selectedShape } = search;
+  const { root, labels: labelMode, view, shape: selectedShape, capo } = search;
   const navigate = route.useNavigate();
 
   const setSearch = (patch: Partial<typeof search>) =>
@@ -68,7 +70,7 @@ export function ChordPage() {
     if (!CHORDS.some((c) => c.id === chordId)) return undefined;
     return {
       chord: getChord(chordId, root),
-      voicings: getChordVoicings(chordId, { root, labelMode, tuning }),
+      voicings: getChordVoicings(chordId, { root, labelMode, tuning, capo }),
       positions: getFretboard({
         item: `chord:${chordId}`,
         root,
@@ -77,7 +79,7 @@ export function ChordPage() {
         frets: FRETS,
       }),
     };
-  }, [chordId, root, labelMode, tuning]);
+  }, [chordId, root, labelMode, tuning, capo]);
 
   const guitar = useGuitar();
   useShortcuts([
@@ -128,7 +130,13 @@ export function ChordPage() {
   const shape =
     voicings.find((v) => shapeKey(v.frets) === selectedShape) ?? voicings[0];
   const shapeTab = shape?.frets.map((f) => f ?? 'x').join(' ');
-  const positions = view === 'shape' ? shape?.positions : data.positions;
+  const positions =
+    view === 'shape'
+      ? shape?.positions.map((p) => ({ ...p, fret: p.fret + capo }))
+      : data.positions;
+  const capoShape = capo
+    ? `${shapeRoot(chord.root, capo)}${chord.symbol.slice(chord.root.length)}`
+    : undefined;
 
   return (
     <div className="flex flex-col gap-8">
@@ -223,6 +231,10 @@ export function ChordPage() {
                     )}
                   </Button>
                 )}
+                <CapoMenu
+                  value={capo}
+                  onChange={(capo) => setSearch({ capo, shape: undefined })}
+                />
                 <TuningMenu />
                 <ToneMenu />
                 <LabelMenu
@@ -233,14 +245,18 @@ export function ChordPage() {
             }
             title={
               view === 'shape'
-                ? `${chord.symbol} · forma ${shapeTab}`
+                ? `${chord.symbol} · forma ${shapeTab}${capo ? ` · capo ${capo}` : ''}`
                 : `${chord.symbol} (${chord.name}) · notas do acorde`
             }
             details={`Notas: ${chord.notes.join(' ')} · Fórmula: ${chord.intervals.join(' ')} · Rótulo: ${LABEL_NAMES[labelMode]}`}
             positions={positions}
             frets={FRETS}
             strings={TUNINGS[tuning].length}
-            barre={view === 'shape' ? shape?.barre : null}
+            barre={
+              view === 'shape' && shape?.barre
+                ? { ...shape.barre, fret: shape.barre.fret + capo }
+                : null
+            }
             exportContent={
               view === 'shape' &&
               shape && (
@@ -273,6 +289,12 @@ export function ChordPage() {
             />
           )}
         </div>
+        {capoShape && voicings.length > 0 && (
+          <p className="text-muted-foreground">
+            Capo na casa {capo}: formas de {capoShape}, contando as casas a
+            partir do capo. Soa {chord.symbol}.
+          </p>
+        )}
         {voicings.length === 0 && (
           <p className="text-muted-foreground">
             Nenhuma forma com a tônica no baixo cabe numa mão para este acorde.

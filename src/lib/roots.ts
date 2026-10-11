@@ -11,3 +11,8 @@ export const stepRoot = (root: string, delta: number) =>
       12) %
       12
   ];
+
+export const shapeRoot = (root: string, capo: number) =>
+  ROOTS.find(
+    (r) => (Note.chroma(r) - Note.chroma(root) + capo + 120) % 12 === 0,
+  ) ?? root;

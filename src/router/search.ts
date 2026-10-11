@@ -43,6 +43,7 @@ export type RawSearch = {
   exercise?: string;
   direction?: string;
   strings?: string | number;
+  capo?: number;
 } & SearchSchemaInput;
 
 const PITCH_CLASS = /^[A-G][#b]?$/;
@@ -77,3 +78,8 @@ export const lickSearch = (search: RawSearch) => {
     span: search.span === true,
   };
 };
+
+export const CAPO_FRETS = [0, 1, 2, 3, 4, 5, 6, 7] as const;
+
+export const capoSearch = (search: RawSearch): number =>
+  CAPO_FRETS.find((f) => f === Number(search.capo)) ?? 0;
