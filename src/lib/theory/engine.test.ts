@@ -77,6 +77,6 @@ describe('getLick', () => {
   });
 
   it('rejects scales without licks', () => {
-    expect(() => getLick('ionian', 'A', 1, 2, 'seed')).toThrow();
+    expect(() => getLick('chromatic', 'A', 1, 2, 'seed')).toThrow();
   });
 });
