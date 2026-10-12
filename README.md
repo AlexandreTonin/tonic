@@ -32,6 +32,7 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 - Imprimir (A4) ou baixar em PNG exatamente o que está na tela. Nos acordes, também a forma selecionada ou todas as formas.
 - Estado na URL: qualquer tela pode ser compartilhada ou salva com as mesmas seleções.
 - Tema claro e escuro.
+- Instalável (PWA) e funciona offline depois da primeira visita; os sons ficam guardados no navegador depois de tocados uma vez.
 
 ## Convenções musicais
 
