@@ -17,6 +17,7 @@ export type RawSearch = {
   position?: number;
   view?: string;
   shape?: string;
+  frets?: string;
   over?: string;
   mode?: string;
   size?: string;

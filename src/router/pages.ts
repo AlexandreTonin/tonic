@@ -64,6 +64,11 @@ export const PAGES = {
     description:
       'Afinador online pelo microfone para guitarra, violão, 7 cordas e baixo: nota, desvio em cents e corda mais próxima. Nada sai do navegador.',
   },
+  chordFinder: {
+    title: 'Identificador de acordes',
+    description:
+      'Marque as casas no braço da guitarra e descubra o nome do acorde, com inversões e alternativas.',
+  },
   metronome: {
     title: 'Metrônomo',
     description:
