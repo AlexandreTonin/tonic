@@ -59,6 +59,11 @@ export const PAGES = {
     description:
       'Quiz de campo harmônico: acordes de cada grau, grau de cada acorde e tons relativos, com placar salvo no navegador.',
   },
+  tuner: {
+    title: 'Afinador',
+    description:
+      'Afinador online pelo microfone para guitarra, violão, 7 cordas e baixo: nota, desvio em cents e corda mais próxima. Nada sai do navegador.',
+  },
   metronome: {
     title: 'Metrônomo',
     description:

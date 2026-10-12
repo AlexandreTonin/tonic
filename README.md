@@ -32,6 +32,7 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 **Ferramentas**
 
 - **Metrônomo**: acentos por tempo, compassos de 2/4 a 12/8, subdivisões, contagem, gap click, speed trainer, timer, atalhos de teclado e predefinições salvas no navegador.
+- **Afinador**: pelo microfone, com nota, desvio em cents e a corda mais próxima da afinação escolhida. O áudio é analisado no navegador e não sai dele.
 
 **Em todas as telas com braço**
 

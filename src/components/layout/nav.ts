@@ -1,4 +1,5 @@
 import {
+  AudioLines,
   CircleDot,
   Ear,
   ClefTreble,
@@ -48,7 +49,10 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Ferramentas',
-    items: [{ to: '/metronome', label: 'Metrônomo', icon: Timer }],
+    items: [
+      { to: '/metronome', label: 'Metrônomo', icon: Timer },
+      { to: '/tuner', label: 'Afinador', icon: AudioLines },
+    ],
   },
 ];
 
