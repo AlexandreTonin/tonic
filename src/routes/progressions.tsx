@@ -26,6 +26,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { MenuButton } from '@/components/ui/menu-button';
 import { useProgressionPlayer } from '@/hooks/use-progression-player';
+import { useShortcuts } from '@/hooks/use-shortcuts';
+import { stepRoot } from '@/lib/roots';
 import { grooveFor, type Track, TRACK_LABELS, TRACKS } from '@/lib/backing';
 import {
   type HarmonicFunction,
@@ -133,6 +135,27 @@ export function ProgressionPage() {
       }),
     [scale, bar, labels, tuning],
   );
+
+  useShortcuts([
+    {
+      key: 'Space',
+      display: 'Espaço',
+      label: 'Tocar ou parar o loop',
+      run: () => (player.playing ? player.stop() : void player.start()),
+    },
+    {
+      key: 'ArrowLeft',
+      display: '←',
+      label: 'Tônica anterior',
+      run: () => setSearch({ root: stepRoot(root, -1) }),
+    },
+    {
+      key: 'ArrowRight',
+      display: '→',
+      label: 'Próxima tônica',
+      run: () => setSearch({ root: stepRoot(root, 1) }),
+    },
+  ]);
 
   if (!progression) {
     return (

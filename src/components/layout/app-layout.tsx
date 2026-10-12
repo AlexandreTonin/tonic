@@ -1,5 +1,6 @@
 import { CommandPalette } from '@/components/layout/command-palette';
 import { GithubIcon } from '@/components/layout/github-icon';
+import { ShortcutsDialog } from '@/components/layout/shortcuts-dialog';
 import {
   APP_ICON as AppIcon,
   BUY_ME_A_COFFEE_URL,
@@ -158,6 +159,7 @@ export function AppLayout() {
         </main>
       </SidebarInset>
       <CommandPalette open={searching} onOpenChange={setSearching} />
+      <ShortcutsDialog />
     </SidebarProvider>
   );
 }

@@ -6,9 +6,11 @@ import { CatalogSelect, RootTabs } from '@/components/theory/theory-controls';
 import { ViewToggle } from '@/components/theory/view-toggle';
 import { Button } from '@/components/ui/button';
 import { useGuitar } from '@/hooks/use-guitar';
+import { useShortcuts } from '@/hooks/use-shortcuts';
 import { useTuning } from '@/hooks/use-tuning';
 import { type Consonance, TUNINGS } from '@/lib/theory/core';
 import { getFretboard, getInterval, listIntervals } from '@/lib/theory/engine';
+import { stepRoot } from '@/lib/roots';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { ArrowDown, ArrowUp, Play } from 'lucide-react';
 import { useMemo } from 'react';
@@ -44,6 +46,28 @@ export function IntervalPage() {
   }, [id, root, tuning]);
 
   const guitar = useGuitar();
+  const setRoot = (root: string) =>
+    navigate({ to: '.', search: { root }, replace: true });
+  useShortcuts([
+    {
+      key: 'Space',
+      display: 'Espaço',
+      label: 'Tocar o intervalo subindo',
+      run: () => data && void guitar.melody(data.interval.midi),
+    },
+    {
+      key: 'ArrowLeft',
+      display: '←',
+      label: 'Tônica anterior',
+      run: () => setRoot(stepRoot(root, -1)),
+    },
+    {
+      key: 'ArrowRight',
+      display: '→',
+      label: 'Próxima tônica',
+      run: () => setRoot(stepRoot(root, 1)),
+    },
+  ]);
 
   if (!data) {
     return (
