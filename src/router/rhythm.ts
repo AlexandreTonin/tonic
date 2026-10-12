@@ -1,8 +1,11 @@
 import { findRhythm } from '@/lib/theory/catalog';
 import { PAGES } from './pages';
 import { SOUND_IDS } from '@/lib/rhythm-sounds';
-import { RhythmPage } from '@/routes/rhythm';
-import { createRoute, stripSearchParams } from '@tanstack/react-router';
+import {
+  createRoute,
+  stripSearchParams,
+  lazyRouteComponent,
+} from '@tanstack/react-router';
 import { rootRoute } from './root';
 import { pick, type RawSearch } from './search';
 
@@ -15,7 +18,7 @@ export const rhythmRoute = createRoute({
     item: (id: string) => findRhythm(id)?.name,
   },
   path: '/rhythm/$id',
-  component: RhythmPage,
+  component: lazyRouteComponent(() => import('@/routes/rhythm'), 'RhythmPage'),
   validateSearch: (search: RawSearch) => {
     const bpm = Math.round(Number(search.bpm));
     return {

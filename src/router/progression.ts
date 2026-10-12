@@ -1,7 +1,10 @@
 import { findProgression } from '@/lib/theory/catalog';
 import { PAGES } from './pages';
-import { ProgressionPage } from '@/routes/progressions';
-import { createRoute, stripSearchParams } from '@tanstack/react-router';
+import {
+  createRoute,
+  stripSearchParams,
+  lazyRouteComponent,
+} from '@tanstack/react-router';
 import { rootRoute } from './root';
 import {
   PROGRESSION_STRUMS,
@@ -26,7 +29,10 @@ export const progressionRoute = createRoute({
     item: (id: string) => findProgression(id)?.name,
   },
   path: '/progressions/$id',
-  component: ProgressionPage,
+  component: lazyRouteComponent(
+    () => import('@/routes/progressions'),
+    'ProgressionPage',
+  ),
   validateSearch: (search: RawSearch) => {
     const bpm = Math.round(Number(search.bpm));
     const strums = PROGRESSION_STRUMS.find((s) => s === Number(search.strums));

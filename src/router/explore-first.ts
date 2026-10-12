@@ -2,6 +2,7 @@ import {
   createRoute,
   redirect,
   stripSearchParams,
+  type RouteComponent,
 } from '@tanstack/react-router';
 import { rootRoute } from './root';
 import { rootSearch, THEORY_DEFAULTS, type RawSearch } from './search';
@@ -16,7 +17,7 @@ export const exploreFirstRoute = <
     | '/rhythm',
 >(
   path: TPath,
-  component: () => React.ReactNode,
+  component: RouteComponent,
   defaultId: string,
   page: { title: string; description: string },
 ) =>

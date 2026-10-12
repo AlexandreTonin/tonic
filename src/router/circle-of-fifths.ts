@@ -1,6 +1,9 @@
 import { PAGES } from './pages';
-import { CircleOfFifthsPage } from '@/routes/circle-of-fifths';
-import { createRoute, stripSearchParams } from '@tanstack/react-router';
+import {
+  createRoute,
+  stripSearchParams,
+  lazyRouteComponent,
+} from '@tanstack/react-router';
 import { rootRoute } from './root';
 import { rootSearch, THEORY_DEFAULTS, type RawSearch } from './search';
 
@@ -8,7 +11,10 @@ export const circleOfFifthsRoute = createRoute({
   getParentRoute: () => rootRoute,
   staticData: PAGES.circleOfFifths,
   path: '/circle-of-fifths',
-  component: CircleOfFifthsPage,
+  component: lazyRouteComponent(
+    () => import('@/routes/circle-of-fifths'),
+    'CircleOfFifthsPage',
+  ),
   validateSearch: (search: RawSearch) => ({ root: rootSearch(search) }),
   search: {
     middlewares: [stripSearchParams({ root: THEORY_DEFAULTS.root })],

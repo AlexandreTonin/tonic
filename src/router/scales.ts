@@ -1,10 +1,10 @@
+import { lazyRouteComponent } from '@tanstack/react-router';
 import { PAGES } from './pages';
-import { ScalesGallery } from '@/routes/galleries';
 import { exploreFirstRoute } from './explore-first';
 
 export const scalesRoute = exploreFirstRoute(
   '/scales',
-  ScalesGallery,
+  lazyRouteComponent(() => import('@/routes/galleries'), 'ScalesGallery'),
   'minor-pentatonic',
   PAGES.scales,
 );

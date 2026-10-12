@@ -1,10 +1,10 @@
+import { lazyRouteComponent } from '@tanstack/react-router';
 import { PAGES } from './pages';
-import { RhythmsGallery } from '@/routes/galleries';
 import { exploreFirstRoute } from './explore-first';
 
 export const rhythmsRoute = exploreFirstRoute(
   '/rhythm',
-  RhythmsGallery,
+  lazyRouteComponent(() => import('@/routes/galleries'), 'RhythmsGallery'),
   'eighth-notes',
   PAGES.rhythm,
 );
