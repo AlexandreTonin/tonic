@@ -32,6 +32,7 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 - Imprimir (A4) ou baixar em PNG exatamente o que está na tela. Nos acordes, também a forma selecionada ou todas as formas.
 - Estado na URL: qualquer tela pode ser compartilhada ou salva com as mesmas seleções.
 - Afinação: padrão, Drop D, meio tom abaixo, DADGAD, Open G, Open D, 7 cordas e baixo de 4 cordas. Braço, posições, formas de acordes, licks, tab e som seguem a afinação escolhida, que fica salva no navegador e no link.
+- Modo canhoto: braço e diagramas de acordes espelhados, também na impressão e no PNG.
 - Tema claro e escuro.
 - Instalável (PWA) e funciona offline depois da primeira visita; os sons ficam guardados no navegador depois de tocados uma vez.
 
