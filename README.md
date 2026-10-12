@@ -36,6 +36,10 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 - **Identificador de acordes**: marque as casas no braço e veja o nome do acorde, inversões e outros nomes possíveis, com link para o acorde na biblioteca. As casas ficam no link.
 - **Identificador de escalas**: escolha notas e veja as escalas da biblioteca que contêm todas elas, da mais justa para a mais ampla, com link para cada uma.
 
+**Em todo o app**
+
+- Busca com Ctrl+K (ou Cmd+K): páginas, escalas, acordes, arpejos, intervalos, progressões, ritmos e exercícios. Comece com uma nota para já abrir no tom (ex.: "A dórico").
+
 **Em todas as telas com braço**
 
 - Imprimir (A4) ou baixar em PNG exatamente o que está na tela. Nos acordes, também a forma selecionada ou todas as formas.
