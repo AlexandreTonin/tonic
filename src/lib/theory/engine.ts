@@ -277,6 +277,82 @@ export function getCustomProgression(
   );
 }
 
+const SEMITONE_DEGREES = [
+  'I',
+  'bII',
+  'II',
+  'bIII',
+  'III',
+  'IV',
+  '#IV',
+  'V',
+  'bVI',
+  'VI',
+  'bVII',
+  'VII',
+];
+
+const degreeToken = (semitones: number, suffix: string) =>
+  SEMITONE_DEGREES[((semitones % 12) + 12) % 12] + suffix;
+
+export interface Substitution {
+  kind: 'tritone' | 'relative' | 'borrowed' | 'secondary' | 'two-five';
+  chords: string[];
+  result: string[];
+}
+
+export function progressionSubstitutions(
+  tokens: string[],
+  index: number,
+  mode: 'major' | 'minor',
+): Substitution[] {
+  const parsed = progressionChordType(tokens[index]);
+  if (!parsed) return [];
+  const { degree, type } = parsed;
+  const semitones = Note.chroma(degreeRoot('C', degree));
+  const { suffix } = degree;
+  const sevenths = /7/.test(suffix);
+  const options: Omit<Substitution, 'result'>[] = [];
+  const replace = (kind: Substitution['kind'], chords: string[]) =>
+    options.push({ kind, chords });
+
+  if (type.id === 'dom7') replace('tritone', [degreeToken(semitones + 6, '7')]);
+  if (['', 'maj7'].includes(suffix)) {
+    replace('relative', [degreeToken(semitones - 3, suffix ? 'm7' : 'm')]);
+  } else if (['m', 'm7'].includes(suffix)) {
+    replace('relative', [
+      degreeToken(semitones + 3, suffix === 'm' ? '' : 'maj7'),
+    ]);
+  }
+  const parallel = getHarmonicField({
+    root: 'C',
+    mode: mode === 'major' ? 'minor' : 'major',
+    size: sevenths ? 'sevenths' : 'triads',
+  }).chords.find((c) => parseDegree(c.degree)?.degree === degree.degree);
+  if (parallel && parallel.degree !== tokens[index]) {
+    replace('borrowed', [parallel.degree]);
+  }
+  if (type.id !== 'dim' && type.id !== 'dim7') {
+    const minorTarget = ['m', 'm7', 'm7b5'].includes(suffix);
+    replace('secondary', [degreeToken(semitones + 7, '7'), tokens[index]]);
+    replace('two-five', [
+      degreeToken(semitones + 2, minorTarget ? 'm7b5' : 'm7'),
+      degreeToken(semitones + 7, '7'),
+      tokens[index],
+    ]);
+  }
+  return options
+    .filter((o) => o.chords.every(isProgressionToken))
+    .map((o) => ({
+      ...o,
+      result: [
+        ...tokens.slice(0, index),
+        ...o.chords,
+        ...tokens.slice(index + 1),
+      ],
+    }));
+}
+
 export function getProgression(id: string, root: string, tuning?: string) {
   const def = findProgression(id);
   if (!def) throw new Error(`Unknown progression ${id}`);
