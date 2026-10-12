@@ -4,6 +4,7 @@ import { arpeggiosRoute } from './arpeggios';
 import { chordRoute } from './chord';
 import { circleOfFifthsRoute } from './circle-of-fifths';
 import { chordsRoute } from './chords';
+import { fretboardTrainerRoute } from './fretboard-trainer';
 import { harmonicFieldRoute } from './harmonic-field';
 import { indexRoute } from './index-route';
 import { intervalRoute } from './interval';
@@ -39,6 +40,7 @@ export const router = createRouter({
     techniqueExerciseRoute,
     rhythmsRoute,
     rhythmRoute,
+    fretboardTrainerRoute,
     metronomeRoute,
     placeholderRoute,
   ]),

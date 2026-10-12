@@ -44,6 +44,11 @@ export const PAGES = {
     description:
       'Padrões rítmicos para guitarra com grade, notação, setas de palhetada, loop e teste de precisão.',
   },
+  fretboardTrainer: {
+    title: 'Notas no braço',
+    description:
+      'Treino de notas no braço da guitarra: encontre a nota pedida ou diga qual nota está marcada, por cordas e região, com placar salvo no navegador.',
+  },
   metronome: {
     title: 'Metrônomo',
     description:
