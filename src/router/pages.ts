@@ -49,6 +49,11 @@ export const PAGES = {
     description:
       'Treino de notas no braço da guitarra: encontre a nota pedida ou diga qual nota está marcada, por cordas e região, com placar salvo no navegador.',
   },
+  earTraining: {
+    title: 'Treino de ouvido',
+    description:
+      'Treino de ouvido para guitarra: reconheça intervalos, acordes, escalas e graus de uma progressão, com placar salvo no navegador.',
+  },
   metronome: {
     title: 'Metrônomo',
     description:

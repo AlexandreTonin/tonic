@@ -26,6 +26,7 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 **Treino**
 
 - **Notas no braço**: encontre no braço a nota pedida ou diga qual nota está na casa marcada, escolhendo cordas e região. Sequência, acertos, precisão e melhor tempo salvos no navegador.
+- **Ouvido**: reconheça intervalos (subindo, descendo ou juntos), tipos de acorde, escalas e graus do campo harmônico maior em tônica sorteada. Escolha quais opções entram no sorteio; placar por exercício salvo no navegador.
 
 **Ferramentas**
 

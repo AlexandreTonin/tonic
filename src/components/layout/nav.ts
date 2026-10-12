@@ -1,5 +1,6 @@
 import {
   CircleDot,
+  Ear,
   ClefTreble,
   Drum,
   Dumbbell,
@@ -40,6 +41,7 @@ export const NAV: NavGroup[] = [
     label: 'Treino',
     items: [
       { to: '/fretboard-trainer', label: 'Notas no braço', icon: Target },
+      { to: '/ear-training', label: 'Ouvido', icon: Ear },
     ],
   },
   {
