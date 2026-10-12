@@ -648,3 +648,33 @@ export function findChords(notes: string[]): FoundChord[] {
     })
     .sort((a, b) => Number(a.inversion) - Number(b.inversion));
 }
+
+export interface FoundScale {
+  scaleId: string;
+  root: string;
+  name: string;
+  notes: string[];
+  extra: number;
+}
+
+export function findScales(notes: string[], roots: readonly string[]) {
+  if (!notes.length) return [];
+  const found = new Map<string, FoundScale>();
+  for (const def of findAllScales()) {
+    if (def.id === 'chromatic') continue;
+    for (const root of roots) {
+      const scale = getScale(def.id, root);
+      if (!containsAll(scale.notes, notes)) continue;
+      const key = `${def.id}:${Note.chroma(scale.root)}`;
+      if (found.has(key)) continue;
+      found.set(key, {
+        scaleId: def.id,
+        root: scale.root,
+        name: def.name,
+        notes: scale.notes,
+        extra: scale.notes.length - new Set(notes.map(Note.chroma)).size,
+      });
+    }
+  }
+  return [...found.values()].sort((a, b) => a.extra - b.extra);
+}

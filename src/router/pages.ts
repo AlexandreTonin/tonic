@@ -69,6 +69,11 @@ export const PAGES = {
     description:
       'Marque as casas no braço da guitarra e descubra o nome do acorde, com inversões e alternativas.',
   },
+  scaleFinder: {
+    title: 'Identificador de escalas',
+    description:
+      'Escolha as notas e descubra quais escalas contêm todas elas, da mais justa para a mais ampla, com link para cada escala no braço.',
+  },
   metronome: {
     title: 'Metrônomo',
     description:

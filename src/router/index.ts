@@ -23,6 +23,7 @@ import { tunerRoute } from './tuner';
 import { techniqueRoute } from './technique';
 import { techniqueExerciseRoute } from './technique-exercise';
 import { scaleRoute } from './scale';
+import { scaleFinderRoute } from './scale-finder';
 import { scalesRoute } from './scales';
 
 export const router = createRouter({
@@ -50,6 +51,7 @@ export const router = createRouter({
     metronomeRoute,
     tunerRoute,
     chordFinderRoute,
+    scaleFinderRoute,
     placeholderRoute,
   ]),
 });
