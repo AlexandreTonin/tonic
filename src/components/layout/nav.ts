@@ -11,6 +11,7 @@ import {
   Network,
   Puzzle,
   Repeat,
+  ScanSearch,
   Ruler,
   Target,
   Timer,
@@ -52,6 +53,7 @@ export const NAV: NavGroup[] = [
     items: [
       { to: '/metronome', label: 'Metrônomo', icon: Timer },
       { to: '/tuner', label: 'Afinador', icon: AudioLines },
+      { to: '/chord-finder', label: 'Identificar acorde', icon: ScanSearch },
     ],
   },
 ];
