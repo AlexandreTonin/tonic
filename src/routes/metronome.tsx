@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useMetronome } from '@/hooks/use-metronome';
+import { useShortcuts } from '@/hooks/use-shortcuts';
 import { CLICK_LABELS, type ClickSound, prepareClick } from '@/lib/clicks';
 import {
   barState,
@@ -92,32 +93,39 @@ export function MetronomePage() {
     if (bpm) setBpm(bpm);
   };
 
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      const target = event.target;
-      if (
-        target instanceof Element &&
-        target.closest(
-          'input, textarea, select, [role=listbox], [role=combobox]',
-        )
-      )
-        return;
-      const step = event.shiftKey ? 5 : 1;
-      if (event.code === 'Space') {
-        event.preventDefault();
-        toggle();
-      } else if (event.key === 't' || event.key === 'T') tap();
-      else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        setBpm(settings.bpm + step);
-      } else if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setBpm(settings.bpm - step);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  });
+  useShortcuts([
+    { key: 'Space', display: 'Espaço', label: 'Tocar ou parar', run: toggle },
+    { key: 't', display: 'T', label: 'Marcar o tap', run: tap },
+    { key: 'T', display: 'Shift T', label: 'Marcar o tap', run: tap },
+    {
+      key: 'ArrowUp',
+      shift: false,
+      display: '↑',
+      label: '+1 BPM',
+      run: () => setBpm(settings.bpm + 1),
+    },
+    {
+      key: 'ArrowDown',
+      shift: false,
+      display: '↓',
+      label: '−1 BPM',
+      run: () => setBpm(settings.bpm - 1),
+    },
+    {
+      key: 'ArrowUp',
+      shift: true,
+      display: 'Shift ↑',
+      label: '+5 BPM',
+      run: () => setBpm(settings.bpm + 5),
+    },
+    {
+      key: 'ArrowDown',
+      shift: true,
+      display: 'Shift ↓',
+      label: '−5 BPM',
+      run: () => setBpm(settings.bpm - 5),
+    },
+  ]);
 
   const status = !state
     ? 'Parado'
