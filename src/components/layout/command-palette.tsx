@@ -1,7 +1,7 @@
 import { searchCommands, type CommandItem } from '@/lib/command-search';
 import { cn } from '@/lib/utils';
 import { Dialog } from '@base-ui/react/dialog';
-import { useNavigate } from '@tanstack/react-router';
+import { useRouter } from '@tanstack/react-router';
 import { Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -12,7 +12,7 @@ export function CommandPalette({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const { root, items } = searchCommands(query);
@@ -37,7 +37,7 @@ export function CommandPalette({
       : item.to;
     const query =
       item.rooted && root ? `?root=${encodeURIComponent(root)}` : '';
-    navigate({ href: path + query });
+    router.history.push(path + query);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {

@@ -21,6 +21,8 @@ export type RawSearch = {
   notes?: string;
   chords?: string;
   shapes?: string;
+  minutes?: number;
+  seed?: string | number;
   over?: string;
   mode?: string;
   size?: string;
