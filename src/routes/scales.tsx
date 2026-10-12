@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { audioContext, startNote, useGuitar } from '@/hooks/use-guitar';
+import { useShortcuts } from '@/hooks/use-shortcuts';
 import { useProgressionPlayer } from '@/hooks/use-progression-player';
 import type { Track } from '@/lib/backing';
 import { TUNINGS } from '@/lib/theory/core';
@@ -67,6 +68,7 @@ import {
   loadFavorites,
   toggleFavorite,
 } from '@/lib/lick-favorites';
+import { stepRoot } from '@/lib/roots';
 import { cn } from '@/lib/utils';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import {
@@ -179,6 +181,33 @@ export function ScalePage() {
   ]);
 
   const guitar = useGuitar();
+  const playButton = useRef<HTMLButtonElement>(null);
+  useShortcuts([
+    {
+      key: 'Space',
+      display: 'Espaço',
+      label: 'Tocar a escala',
+      run: () => playButton.current?.click(),
+    },
+    {
+      key: 'ArrowLeft',
+      display: '←',
+      label: 'Tônica anterior',
+      run: () => setSearch({ root: stepRoot(root, -1) }),
+    },
+    {
+      key: 'ArrowRight',
+      display: '→',
+      label: 'Próxima tônica',
+      run: () => setSearch({ root: stepRoot(root, 1) }),
+    },
+    ...Array.from({ length: positionCount + 1 }, (_, i) => ({
+      key: String(i),
+      display: String(i),
+      label: i ? `Posição ${i}` : 'Todas as posições',
+      run: () => setSearch({ position: i || undefined }),
+    })),
+  ]);
   const [playingMidi, setPlayingMidi] = useState<number | null>(null);
   const [playingNote, setPlayingNote] = useState<number | null>(null);
   const [lickBpm, setLickBpm] = useState(80);
@@ -457,6 +486,7 @@ export function ScalePage() {
               )}
               <Button
                 variant="outline"
+                ref={playButton}
                 disabled={!scaleMidis.length || guitar.loading}
                 onClick={() => {
                   stopLoop();

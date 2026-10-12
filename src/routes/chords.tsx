@@ -15,6 +15,7 @@ import {
 import { ViewToggle } from '@/components/theory/view-toggle';
 import { Button } from '@/components/ui/button';
 import { useGuitar } from '@/hooks/use-guitar';
+import { useShortcuts } from '@/hooks/use-shortcuts';
 import { TUNINGS } from '@/lib/theory/core';
 import {
   getChord,
@@ -22,6 +23,7 @@ import {
   getFretboard,
   listChords,
 } from '@/lib/theory/engine';
+import { stepRoot } from '@/lib/roots';
 import { cn } from '@/lib/utils';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { Play } from 'lucide-react';
@@ -78,6 +80,31 @@ export function ChordPage() {
   }, [chordId, root, labelMode, tuning]);
 
   const guitar = useGuitar();
+  useShortcuts([
+    {
+      key: 'Space',
+      display: 'Espaço',
+      label: 'Tocar a forma selecionada',
+      run: () => {
+        const v =
+          data?.voicings.find((v) => shapeKey(v.frets) === selectedShape) ??
+          data?.voicings[0];
+        if (v) void guitar.strum(v.positions.map((p) => p.midi));
+      },
+    },
+    {
+      key: 'ArrowLeft',
+      display: '←',
+      label: 'Tônica anterior',
+      run: () => setSearch({ root: stepRoot(root, -1), shape: undefined }),
+    },
+    {
+      key: 'ArrowRight',
+      display: '→',
+      label: 'Próxima tônica',
+      run: () => setSearch({ root: stepRoot(root, 1), shape: undefined }),
+    },
+  ]);
   const shapesRef = useRef<HTMLDivElement>(null);
 
   if (!data) {

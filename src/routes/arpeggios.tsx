@@ -13,6 +13,7 @@ import {
 import { ViewToggle } from '@/components/theory/view-toggle';
 import { Button } from '@/components/ui/button';
 import { useGuitar } from '@/hooks/use-guitar';
+import { useShortcuts } from '@/hooks/use-shortcuts';
 import { TUNINGS } from '@/lib/theory/core';
 import {
   getArpeggio,
@@ -20,10 +21,11 @@ import {
   getFretboard,
   listChords,
 } from '@/lib/theory/engine';
+import { stepRoot } from '@/lib/roots';
 import { cn } from '@/lib/utils';
 import { getRouteApi, Link } from '@tanstack/react-router';
 import { Play, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 const route = getRouteApi('/arpeggios/$id');
 const FRETS = 22;
@@ -72,6 +74,27 @@ export function ArpeggioPage() {
   );
 
   const guitar = useGuitar();
+  const playButton = useRef<HTMLButtonElement>(null);
+  useShortcuts([
+    {
+      key: 'Space',
+      display: 'Espaço',
+      label: 'Tocar o arpejo',
+      run: () => playButton.current?.click(),
+    },
+    {
+      key: 'ArrowLeft',
+      display: '←',
+      label: 'Tônica anterior',
+      run: () => setSearch({ root: stepRoot(root, -1) }),
+    },
+    {
+      key: 'ArrowRight',
+      display: '→',
+      label: 'Próxima tônica',
+      run: () => setSearch({ root: stepRoot(root, 1) }),
+    },
+  ]);
   const [playingMidi, setPlayingMidi] = useState<number | null>(null);
 
   if (!base || !positions) {
@@ -165,6 +188,7 @@ export function ArpeggioPage() {
               )}
               <Button
                 variant="outline"
+                ref={playButton}
                 disabled={!midis.length || guitar.loading}
                 onClick={() => guitar.upAndDown(midis, setPlayingMidi)}
               >
