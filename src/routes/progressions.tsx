@@ -6,6 +6,7 @@ import { useTuning } from '@/hooks/use-tuning';
 import { LABEL_NAMES } from '@/lib/labels';
 import { ProgressionBuilder } from '@/components/theory/progression-builder';
 import { LinkRow, Related } from '@/components/theory/related';
+import { Substitutions } from '@/components/theory/substitutions';
 import {
   CatalogSelect,
   ChoiceTabs,
@@ -331,6 +332,26 @@ export function ProgressionPage() {
           );
         })}
       </ol>
+
+      <Substitutions
+        tokens={progression.bars.map((b) => b.degree)}
+        index={Math.min(current, bars.length - 1)}
+        mode={progression.mode}
+        root={progression.root}
+        tuning={tuning}
+        onApply={(result) => {
+          player.stop();
+          navigate({
+            to: '/progressions/$id',
+            params: { id: CUSTOM_PROGRESSION },
+            search: {
+              ...search,
+              mode: progression.mode,
+              chords: result.join(','),
+            },
+          });
+        }}
+      />
 
       {bar && scale && positions && (
         <div className="flex flex-col gap-4">

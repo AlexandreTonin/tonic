@@ -585,6 +585,9 @@ export function harmonicFunction(
   if (chordId === 'dom7' && ![1, 5].includes(bar.degree) && resolvesUpAFourth) {
     return 'secondary-dominant';
   }
+  const resolvesDownASemitone =
+    (Note.chroma(nextRoot) - Note.chroma(root) + 12) % 12 === 11;
+  if (chordId === 'dom7' && resolvesDownASemitone) return 'dominant';
   if (bar.degree === 6 && bar.accidental === 'b') return 'subdominant';
   if ([1, 3, 6].includes(bar.degree)) return 'tonic';
   if ([2, 4].includes(bar.degree)) return 'subdominant';
