@@ -45,9 +45,10 @@ import { useProgressionPlayer } from '@/hooks/use-progression-player';
 import type { Track } from '@/lib/backing';
 import { TUNINGS } from '@/lib/theory/core';
 import {
-  getChord,
   getFretboard,
   getLick,
+  getLickChord,
+  isBluesLick,
   getScale,
   LICK_SCALES,
   listScales,
@@ -207,16 +208,26 @@ export function ScalePage() {
     cues.current.push(
       setTimeout(run, Math.max(0, (time - audioContext().currentTime) * 1000)),
     );
+  const blues = isBluesLick(scaleId);
   const vamp = useMemo(() => {
-    const chord = getChord('dom7', root);
-    return { root: chord.root, notes: chord.notes, intervals: chord.intervals };
-  }, [root]);
+    const chord = getLickChord(
+      LICK_SCALES.includes(scaleId) ? scaleId : 'blues',
+      root,
+    );
+    return {
+      root: chord.root,
+      symbol: chord.symbol,
+      notes: chord.notes,
+      intervals: chord.intervals,
+    };
+  }, [scaleId, root]);
+  const backingName = `${blues ? 'base de blues' : 'base'} ${vamp.symbol}`;
   const backing = useProgressionPlayer({
     bars: Array.from({ length: bars }, () => ({ ...vamp, strum: [] })),
     bpm: tempoAt,
     beats: BEATS_PER_BAR,
     strums: 1,
-    groove: 'shuffle',
+    groove: blues ? 'shuffle' : 'rock',
     muted: BACKING_MUTED,
     onBeat: (beat, time, instrument) => {
       const lick = view?.lick;
@@ -499,7 +510,8 @@ export function ScalePage() {
           <div className="flex flex-col gap-1">
             <h2 className="text-xl font-semibold tracking-tight">Lick</h2>
             <p className="text-muted-foreground">
-              Uma frase de blues nova a cada clique,{' '}
+              Uma frase {blues ? 'de blues ' : `sobre ${vamp.symbol} `}nova a
+              cada clique,{' '}
               {span
                 ? `entre as posições ${lickPosition} e ${(lickPosition % 5) + 1}`
                 : `dentro da posição ${lickPosition}`}
@@ -680,9 +692,9 @@ export function ScalePage() {
                   <DropdownMenu>
                     <MenuButton
                       icon={Drum}
-                      label={`Acompanhamento: ${withBacking ? `base de blues ${vamp.root}7` : 'sem base'}`}
+                      label={`Acompanhamento: ${withBacking ? backingName : 'sem base'}`}
                     >
-                      {withBacking ? `Base ${vamp.root}7` : 'Sem base'}
+                      {withBacking ? `Base ${vamp.symbol}` : 'Sem base'}
                     </MenuButton>
                     <DropdownMenuContent
                       align="end"
@@ -701,7 +713,8 @@ export function ScalePage() {
                             Sem base
                           </DropdownMenuRadioItem>
                           <DropdownMenuRadioItem value={true}>
-                            Base de blues ({vamp.root}7)
+                            {backingName[0].toUpperCase() +
+                              backingName.slice(1)}
                           </DropdownMenuRadioItem>
                         </DropdownMenuRadioGroup>
                       </DropdownMenuGroup>
