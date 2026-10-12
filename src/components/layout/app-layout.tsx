@@ -1,3 +1,4 @@
+import { CommandPalette } from '@/components/layout/command-palette';
 import { GithubIcon } from '@/components/layout/github-icon';
 import {
   APP_ICON as AppIcon,
@@ -22,8 +23,8 @@ import {
 } from '@/components/ui/sidebar';
 import { applyPageMeta } from '@/lib/page-meta';
 import { Link, Outlet, useLocation, useMatches } from '@tanstack/react-router';
-import { Coffee } from 'lucide-react';
-import { useEffect } from 'react';
+import { Coffee, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { ThemeToggle } from '../ui/theme-toggle';
 
 export function AppLayout() {
@@ -49,6 +50,7 @@ export function AppLayout() {
   useEffect(() => {
     applyPageMeta({ title, description, noindex, pathname });
   }, [title, description, noindex, pathname]);
+  const [searching, setSearching] = useState(false);
   const isActive = (to: string) =>
     to === '/' ? pathname === '/' : pathname.startsWith(to);
 
@@ -63,6 +65,15 @@ export function AppLayout() {
             </div>
             <ThemeToggle />
           </div>
+          <button
+            type="button"
+            onClick={() => setSearching(true)}
+            className="flex h-8 items-center gap-2 rounded-xl border px-2 text-sm text-muted-foreground transition-colors hover:bg-muted"
+          >
+            <Search className="size-4" />
+            Buscar
+            <kbd className="ml-auto font-sans text-xs">Ctrl K</kbd>
+          </button>
         </SidebarHeader>
         <SidebarContent>
           {NAV.map((group, i) => (
@@ -133,11 +144,20 @@ export function AppLayout() {
             <AppIcon className="size-4" />
             Tonic
           </div>
+          <button
+            type="button"
+            aria-label="Buscar"
+            onClick={() => setSearching(true)}
+            className="justify-self-end rounded-xl p-2 hover:bg-muted"
+          >
+            <Search className="size-4" />
+          </button>
         </header>
         <main className="min-w-0 flex-1 p-6 md:p-10">
           <Outlet />
         </main>
       </SidebarInset>
+      <CommandPalette open={searching} onOpenChange={setSearching} />
     </SidebarProvider>
   );
 }
