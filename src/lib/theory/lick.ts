@@ -6,6 +6,7 @@ export interface PoolNote {
   degree: string;
   blue?: boolean;
   passing?: boolean;
+  chordTone?: boolean;
 }
 
 export type Role = 'Repouso' | 'Estável' | 'Cor' | 'Tensão';
@@ -277,7 +278,11 @@ const DEGREES: Record<string, [Role, string, string]> = {
   '6': ['Cor', '6ª', 'cor doce e aberta, tensão leve'],
   '4': ['Tensão', '4ª', 'pede resolução na 5ª ou na 3ª'],
   '2': ['Tensão', '2ª (9ª)', 'pede resolução na tônica ou na 3ª'],
-  b5: ['Tensão', '5ª diminuta', 'blue note entre a 4ª e a 5ª'],
+  b5: ['Tensão', '5ª diminuta', 'cromatismo entre a 4ª e a 5ª'],
+  '7': ['Tensão', '7ª maior', 'a sensível, puxa forte para a tônica'],
+  b6: ['Tensão', '6ª menor', 'tensão sombria que cai na 5ª'],
+  b2: ['Tensão', '2ª menor', 'tensão forte e escura, cai na tônica'],
+  '#4': ['Cor', '4ª aumentada', 'cor brilhante e suspensa do lídio'],
 };
 
 export const LICK_BARS = [1, 2, 4] as const;
@@ -327,7 +332,7 @@ export function seededRandom(seed: string): Random {
 const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
 const span = (cell: number[]) => sum(cell.map(Math.abs));
 const isChordTone = (note: PoolNote) =>
-  !note.blue && CHORD_TONES.includes(note.degree);
+  !note.blue && (note.chordTone ?? CHORD_TONES.includes(note.degree));
 
 function weighted<T>(random: Random, options: Weighted<T>): T {
   let r = random() * sum(options.map(([, w]) => w));
@@ -608,9 +613,9 @@ function resolve(
   const idx = base.idx.slice(0, kept.length);
   const from = idx.at(-1) ?? base.idx[0];
   const degree = random() < 0.75 ? 'R' : '5';
-  const targets = pool.flatMap((n, i) =>
-    !n.blue && n.degree === degree ? [i] : [],
-  );
+  const on = (d: string) =>
+    pool.flatMap((n, i) => (!n.blue && n.degree === d ? [i] : []));
+  const targets = on(degree).length ? on(degree) : on('R');
   const target = targets.reduce((best, i) =>
     Math.abs(i - from) < Math.abs(best - from) ? i : best,
   );
@@ -716,8 +721,14 @@ export function beatLabel(start: number) {
 }
 
 const named = (note: PoolNote) => `${note.note} (${note.degree})`;
-const roleOf = (note: PoolNote) =>
-  note.blue ? 'Tensão' : (DEGREES[note.degree]?.[0] ?? 'Cor');
+const roleOf = (note: PoolNote): Role =>
+  note.blue
+    ? 'Tensão'
+    : note.degree === 'R'
+      ? 'Repouso'
+      : note.chordTone
+        ? 'Estável'
+        : (DEGREES[note.degree]?.[0] ?? 'Cor');
 const stable = (note: PoolNote) =>
   ['Repouso', 'Estável'].includes(roleOf(note));
 
