@@ -11,6 +11,7 @@ import {
   findRhythm,
   findScale,
   type IntervalDef,
+  type ProgressionDef,
   type ScaleDef,
 } from './catalog';
 import {
@@ -228,9 +229,62 @@ const scaleRef = (id: string, root: string) => {
   return { id, name: scale.name, root: scale.root };
 };
 
+export const CUSTOM_PROGRESSION = 'custom';
+
+const progressionChordType = (token: string) => {
+  const degree = parseDegree(token);
+  const type =
+    degree && findAllChords().find((c) => c.suffix === degree.suffix);
+  return degree && type ? { degree, type } : undefined;
+};
+
+export const isProgressionToken = (token: string) =>
+  !!progressionChordType(token);
+
+export function customProgressionPalette(mode: 'major' | 'minor') {
+  const field = (m: 'major' | 'minor', size: 'triads' | 'sevenths') =>
+    getHarmonicField({ root: 'C', mode: m, size }).chords.map((c) => c.degree);
+  const other = mode === 'major' ? 'minor' : 'major';
+  const diatonic = [...field(mode, 'triads'), ...field(mode, 'sevenths')];
+  const borrowed = [...field(other, 'triads'), ...field(other, 'sevenths')];
+  const dominants = ['I7', 'II7', 'III7', 'V7', 'VI7', 'VII7'];
+  return {
+    diatonic,
+    borrowed: borrowed.filter((d) => !diatonic.includes(d)),
+    dominants: dominants.filter(
+      (d) => !diatonic.includes(d) && !borrowed.includes(d),
+    ),
+  };
+}
+
+export function getCustomProgression(
+  bars: string[],
+  mode: 'major' | 'minor',
+  root: string,
+  tuning?: string,
+) {
+  return buildProgression(
+    {
+      id: CUSTOM_PROGRESSION,
+      name: 'Personalizada',
+      category: 'Personalizada',
+      mode,
+      scale: mode === 'major' ? 'ionian' : 'aeolian',
+      bars: bars.filter(isProgressionToken),
+    },
+    root,
+    tuning,
+  );
+}
+
 export function getProgression(id: string, root: string, tuning?: string) {
   const def = findProgression(id);
   if (!def) throw new Error(`Unknown progression ${id}`);
+  return buildProgression(def, root, tuning);
+}
+
+function buildProgression(def: ProgressionDef, root: string, tuning?: string) {
+  const { id } = def;
   const key = withoutDoubleSharps(root, (r) =>
     spellScale(r, def.mode === 'major' ? 'major' : 'aeolian'),
   );
@@ -238,9 +292,9 @@ export function getProgression(id: string, root: string, tuning?: string) {
     (scale) => spell(scale, 'C').notes.length === 7,
   );
   const chords = def.bars.map((token) => {
-    const degree = parseDegree(token);
-    const type = findAllChords().find((c) => c.suffix === degree?.suffix);
-    if (!degree || !type) throw new Error(`Bad degree ${token} in ${id}`);
+    const parsed = progressionChordType(token);
+    if (!parsed) throw new Error(`Bad degree ${token} in ${id}`);
+    const { degree, type } = parsed;
     return {
       token,
       degree,

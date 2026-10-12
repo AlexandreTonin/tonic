@@ -20,7 +20,11 @@ const PROGRESSION_DEFAULTS = {
   bpm: 90,
   scales: 'key',
   strums: 1,
+  mode: 'major',
+  chords: 'I,VIm,IV,V',
 } as const;
+const PROGRESSION_MODES = ['major', 'minor'] as const;
+const CHORDS = /^[#b]?[IV]{1,3}[^,]{0,8}(,[#b]?[IV]{1,3}[^,]{0,8}){0,31}$/;
 
 export const progressionRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -45,6 +49,10 @@ export const progressionRoute = createRoute({
         PROGRESSION_DEFAULTS.scales,
       ),
       strums: strums ?? PROGRESSION_DEFAULTS.strums,
+      mode: pick(search.mode, PROGRESSION_MODES, PROGRESSION_DEFAULTS.mode),
+      chords: CHORDS.test(String(search.chords ?? ''))
+        ? String(search.chords)
+        : PROGRESSION_DEFAULTS.chords,
     };
   },
   search: { middlewares: [stripSearchParams(PROGRESSION_DEFAULTS)] },

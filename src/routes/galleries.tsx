@@ -2,6 +2,7 @@ import { ViewToggle } from '@/components/theory/view-toggle';
 import {
   listChords,
   listIntervals,
+  CUSTOM_PROGRESSION,
   listProgressions,
   listRhythms,
   listScales,
@@ -143,10 +144,18 @@ export function IntervalsGallery() {
 }
 
 const progressionsApi = getRouteApi('/progressions');
-const PROGRESSION_ITEMS = listProgressions().map((p) => ({
-  ...p,
-  detail: `${p.bars.length} compassos`,
-}));
+const PROGRESSION_ITEMS = [
+  ...listProgressions().map((p) => ({
+    ...p,
+    detail: `${p.bars.length} compassos`,
+  })),
+  {
+    id: CUSTOM_PROGRESSION,
+    name: 'Personalizada',
+    category: 'Personalizada',
+    detail: 'Monte a sua',
+  },
+];
 
 export function ProgressionsGallery() {
   const { root } = progressionsApi.useSearch();

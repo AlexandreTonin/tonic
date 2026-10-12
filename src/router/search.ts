@@ -19,6 +19,7 @@ export type RawSearch = {
   shape?: string;
   frets?: string;
   notes?: string;
+  chords?: string;
   over?: string;
   mode?: string;
   size?: string;

@@ -4,6 +4,7 @@ import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { TuningMenu } from '@/components/fretboard/tuning-menu';
 import { useTuning } from '@/hooks/use-tuning';
 import { LABEL_NAMES } from '@/lib/labels';
+import { ProgressionBuilder } from '@/components/theory/progression-builder';
 import { LinkRow, Related } from '@/components/theory/related';
 import {
   CatalogSelect,
@@ -28,6 +29,8 @@ import { grooveFor, type Track, TRACK_LABELS, TRACKS } from '@/lib/backing';
 import { type HarmonicFunction, TUNINGS } from '@/lib/theory/core';
 import {
   getFretboard,
+  CUSTOM_PROGRESSION,
+  getCustomProgression,
   getProgression,
   listProgressions,
 } from '@/lib/theory/engine';
@@ -41,6 +44,10 @@ const route = getRouteApi('/progressions/$id');
 const FRETS = 22;
 const BEATS = 4;
 const PROGRESSIONS = listProgressions();
+const PROGRESSION_ITEMS = [
+  ...PROGRESSIONS,
+  { id: CUSTOM_PROGRESSION, name: 'Personalizada', category: 'Personalizada' },
+];
 const FUNCTIONS: Record<HarmonicFunction, string> = {
   tonic: 'Tônica',
   subdominant: 'Subdominante',
@@ -57,7 +64,9 @@ const uniqueBy = <T,>(items: T[], key: (item: T) => string) => [
 export function ProgressionPage() {
   const { id } = route.useParams();
   const search = route.useSearch();
-  const { root, labels, bpm, scales, strums } = search;
+  const { root, labels, bpm, scales, strums, mode, chords } = search;
+  const custom = id === CUSTOM_PROGRESSION;
+  const customChords = useMemo(() => chords.split(','), [chords]);
   const navigate = route.useNavigate();
 
   const setSearch = (patch: Partial<typeof search>) =>
@@ -66,10 +75,12 @@ export function ProgressionPage() {
   const [tuning] = useTuning();
   const progression = useMemo(
     () =>
-      PROGRESSIONS.some((p) => p.id === id)
-        ? getProgression(id, root, tuning)
-        : undefined,
-    [id, root, tuning],
+      custom
+        ? getCustomProgression(customChords, mode, root, tuning)
+        : PROGRESSIONS.some((p) => p.id === id)
+          ? getProgression(id, root, tuning)
+          : undefined,
+    [custom, customChords, mode, id, root, tuning],
   );
   const bars = progression?.bars ?? [];
 
@@ -169,7 +180,7 @@ export function ProgressionPage() {
           <CatalogSelect
             id="progression-id"
             label="Progressão"
-            items={PROGRESSIONS}
+            items={PROGRESSION_ITEMS}
             value={id}
             onChange={(id) => {
               player.stop();
@@ -183,6 +194,22 @@ export function ProgressionPage() {
             onChange={(root) => setSearch({ root })}
           />
         </div>
+
+        {custom && (
+          <ProgressionBuilder
+            mode={mode}
+            chords={customChords}
+            symbols={bars.map((b) => b.symbol)}
+            onChange={({ mode, chords }) => {
+              player.stop();
+              setSelected(0);
+              setSearch({
+                ...(mode && { mode }),
+                ...(chords && { chords: chords.join(',') }),
+              });
+            }}
+          />
+        )}
 
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">

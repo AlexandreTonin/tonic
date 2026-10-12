@@ -19,7 +19,7 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 - **Intervalos**: simples e compostos, com tamanho, inversão, consonância e som subindo, descendo ou junto.
 - **Campo harmônico**: maior e menor, tríades ou tétrades, com opção de V7 da menor harmônica e o acorde selecionado em graus do tom.
 - **Círculo das quintas**: tons maiores e relativas menores, armaduras, acordes do tom destacados no círculo e tons vizinhos.
-- **Progressões**: progressões maiores, menores, blues e jazz em qualquer tom. Loop com guitarra, baixo, piano, bateria e metrônomo (cada faixa pode ser mutada), batidas por compasso e braço sincronizado com a escala para solar sobre cada acorde.
+- **Progressões**: progressões maiores, menores, blues e jazz em qualquer tom. Loop com guitarra, baixo, piano, bateria e metrônomo (cada faixa pode ser mutada), batidas por compasso e braço sincronizado com a escala para solar sobre cada acorde. Progressão personalizada: monte com acordes do campo harmônico, empréstimos modais e dominantes secundários, ouça no mesmo player, compartilhe pelo link e salve as favoritas no navegador.
 - **Técnica**: exercícios de palhetada, legato, cruzamento de cordas, sweep, tapping e troca de acordes, com padrão em tab, dicas e metrônomo.
 - **Ritmo**: padrões com grade, notação e setas de palhetada, loop com vários sons e teste de precisão.
 
