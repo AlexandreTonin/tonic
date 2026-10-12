@@ -39,6 +39,7 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 **Em todo o app**
 
 - Busca com Ctrl+K (ou Cmd+K): páginas, escalas, acordes, arpejos, intervalos, progressões, ritmos e exercícios. Comece com uma nota para já abrir no tom (ex.: "A dórico").
+- Atalhos de teclado: espaço toca, setas trocam a tônica, números escolhem a posição nas escalas; `?` mostra os atalhos da tela.
 
 **Em todas as telas com braço**
 
