@@ -9,6 +9,7 @@ import {
   Layers,
   ListMusic,
   Network,
+  NotebookPen,
   Puzzle,
   Repeat,
   ScanSearch,
@@ -47,6 +48,7 @@ export const NAV: NavGroup[] = [
       { to: '/fretboard-trainer', label: 'Notas no braço', icon: Target },
       { to: '/ear-training', label: 'Ouvido', icon: Ear },
       { to: '/harmonic-quiz', label: 'Tons e graus', icon: Puzzle },
+      { to: '/practice-log', label: 'Diário de prática', icon: NotebookPen },
     ],
   },
   {
