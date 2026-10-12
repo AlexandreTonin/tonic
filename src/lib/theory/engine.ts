@@ -604,3 +604,47 @@ export function getCircleKey(root: string) {
     },
   };
 }
+
+export interface FoundChord {
+  chordId: string;
+  root: string;
+  symbol: string;
+  name: string;
+  bass: string;
+  inversion: boolean;
+}
+
+export function findChords(notes: string[]): FoundChord[] {
+  const chromas = [...new Set(notes.map((n) => Note.chroma(n)))];
+  if (chromas.length < 2) return [];
+  const bass = notes[0];
+  const sameSet = (a: number[], b: number[]) =>
+    a.length === b.length && a.every((c) => b.includes(c));
+  return chromas
+    .flatMap((rootChroma) => {
+      const relative = chromas.map((c) => (c - rootChroma + 12) % 12);
+      const def = findAllChords().find((c) =>
+        sameSet(
+          spellChord('C', c.tonal).notes.map((n) => Note.chroma(n)),
+          relative,
+        ),
+      );
+      if (!def) return [];
+      const root = notes.find((n) => Note.chroma(n) === rootChroma)!;
+      const chord = getChord(def.id, Note.simplify(root));
+      const inversion = !sameNote(chord.root, bass);
+      const bassName =
+        chord.notes.find((n) => sameNote(n, bass)) ?? Note.simplify(bass);
+      return [
+        {
+          chordId: def.id,
+          root: chord.root,
+          symbol: inversion ? `${chord.symbol}/${bassName}` : chord.symbol,
+          name: def.name,
+          bass: bassName,
+          inversion,
+        },
+      ];
+    })
+    .sort((a, b) => Number(a.inversion) - Number(b.inversion));
+}
