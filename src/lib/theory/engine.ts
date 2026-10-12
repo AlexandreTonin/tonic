@@ -440,12 +440,32 @@ export function getFretboard({
   );
 }
 
-export const LICK_SCALES = [
+const BLUES_LICK_SCALES = [
   'minor-pentatonic',
   'major-pentatonic',
   'blues',
   'major-blues',
 ];
+
+export const LICK_CHORDS: Record<string, string> = {
+  ...Object.fromEntries(BLUES_LICK_SCALES.map((id) => [id, 'dom7'])),
+  ionian: 'maj7',
+  dorian: 'm7',
+  phrygian: 'm7',
+  lydian: 'maj7',
+  mixolydian: 'dom7',
+  aeolian: 'm7',
+  locrian: 'm7b5',
+  'harmonic-minor': 'minor',
+  'phrygian-dominant': 'dom7',
+};
+
+export const LICK_SCALES = Object.keys(LICK_CHORDS);
+
+export const isBluesLick = (id: string) => BLUES_LICK_SCALES.includes(id);
+
+export const getLickChord = (id: string, root: string) =>
+  getChord(LICK_CHORDS[id], root);
 
 const tabStringNames = (tuning: string[]) =>
   [...tuning]
@@ -523,24 +543,34 @@ export function getLick(
   ]
     .filter((n, i, all) => all.findIndex((m) => m.midi === n.midi) === i)
     .sort((a, b) => a.midi - b.midi);
+  const chordTones = getLickChord(id, scale.root).intervals;
+  const toned = pool.map((n) => ({
+    ...n,
+    chordTone: chordTones.includes(n.degree),
+  }));
+  const blues = isBluesLick(id);
   const blue = BLUE_NOTES[def.boxes];
   const inScale = scale.intervals.includes(blue.degree);
-  const marked = pool.map((n) =>
-    inScale && n.degree === blue.degree ? { ...n, blue: true } : n,
+  const marked = toned.map((n) =>
+    blues && inScale && n.degree === blue.degree
+      ? { ...n, blue: true, chordTone: false }
+      : n,
   );
-  const passing: PoolNote[] = inScale
-    ? []
-    : pool
-        .filter((n) => n.degree === blue.below)
-        .map((n) => ({
-          ...n,
-          fret: n.fret + 1,
-          midi: n.midi + 1,
-          note: Note.transpose(scale.root, blue.interval),
-          degree: blue.degree,
-          blue: true,
-          passing: true,
-        }));
+  const passing: PoolNote[] =
+    inScale || !blues
+      ? []
+      : toned
+          .filter((n) => n.degree === blue.below)
+          .map((n) => ({
+            ...n,
+            fret: n.fret + 1,
+            midi: n.midi + 1,
+            note: Note.transpose(scale.root, blue.interval),
+            degree: blue.degree,
+            blue: true,
+            passing: true,
+            chordTone: false,
+          }));
   return generateLick(
     [...marked, ...passing].sort((a, b) => a.midi - b.midi),
     bars,
