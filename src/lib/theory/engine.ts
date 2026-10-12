@@ -43,7 +43,6 @@ import {
   spellScale,
   spellSymmetric,
   superimpositions,
-  TUNINGS,
   withoutDoubleSharps,
   type LabelMode,
 } from './core';
@@ -229,7 +228,7 @@ const scaleRef = (id: string, root: string) => {
   return { id, name: scale.name, root: scale.root };
 };
 
-export function getProgression(id: string, root: string) {
+export function getProgression(id: string, root: string, tuning?: string) {
   const def = findProgression(id);
   if (!def) throw new Error(`Unknown progression ${id}`);
   const key = withoutDoubleSharps(root, (r) =>
@@ -270,7 +269,8 @@ export function getProgression(id: string, root: string) {
         notes: chord.notes,
         intervals: chord.intervals,
         function: harmonicFunction(degree, chord.root, chord.id, next.root),
-        voicing: getChordVoicings(chord.id, { root: chord.root })[0] ?? null,
+        voicing:
+          getChordVoicings(chord.id, { root: chord.root, tuning })[0] ?? null,
         scale: scale ? scaleRef(scale.mode.id, chord.root) : null,
       };
     }),
@@ -447,6 +447,15 @@ export const LICK_SCALES = [
   'major-blues',
 ];
 
+const tabStringNames = (tuning: string[]) =>
+  [...tuning]
+    .reverse()
+    .map((note, i, all) =>
+      i === 0 && all.slice(1).some((other) => sameNote(other, note))
+        ? Note.pitchClass(note).toLowerCase()
+        : Note.pitchClass(note),
+    );
+
 const BLUE_NOTES = {
   minor: { degree: 'b5', interval: '5d', below: '4' },
   major: { degree: 'b3', interval: '3m', below: '2' },
@@ -458,14 +467,19 @@ export function getLick(
   position: number,
   bars: number,
   seed: string,
-  options?: { style?: string; easy?: boolean; span?: boolean },
+  options?: {
+    style?: string;
+    easy?: boolean;
+    span?: boolean;
+    tuning?: string;
+  },
 ) {
   const def = findScale(id);
   if (!def?.boxes || !LICK_SCALES.includes(id)) {
     throw new Error(`No licks for scale ${id}`);
   }
   const scale = getScale(id, root);
-  const tuning = TUNINGS.standard;
+  const tuning = tuningOrThrow(options?.tuning ?? 'standard');
   const open = openMidis(tuning);
   const box = pentatonicBox(scale.root, def.boxes, position, tuning);
   const next = pentatonicBox(
@@ -531,7 +545,7 @@ export function getLick(
     [...marked, ...passing].sort((a, b) => a.midi - b.midi),
     bars,
     seededRandom(seed),
-    { ...options, climb: options?.span },
+    { ...options, climb: options?.span, strings: tabStringNames(tuning) },
   );
 }
 

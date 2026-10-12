@@ -864,8 +864,8 @@ function describeBar(
   return `${entry} ${shape}${pauses}.${cliches} ${ending}`;
 }
 
-function tab(notes: Played[], beats: number) {
-  const lines = STRING_NAMES.map(() => '');
+function tab(notes: Played[], beats: number, names: string[]) {
+  const lines = names.map(() => '');
   const cells: TabCell[] = [];
   const units = (b: number) => Math.round(b * 4);
   const pad = (n: number) =>
@@ -896,7 +896,7 @@ function tab(notes: Played[], beats: number) {
   }
   advance(beats);
   return {
-    lines: lines.map((line, s) => `${STRING_NAMES[s]}|${line}`),
+    lines: lines.map((line, s) => `${names[s]}|${line}`),
     cells,
   };
 }
@@ -909,7 +909,13 @@ export function generateLick(
     style: styleId,
     easy = false,
     climb = false,
-  }: { style?: string; easy?: boolean; climb?: boolean } = {},
+    strings = STRING_NAMES,
+  }: {
+    style?: string;
+    easy?: boolean;
+    climb?: boolean;
+    strings?: string[];
+  } = {},
 ): Lick {
   const picked = STYLES.find((s) => s.id === styleId) ?? oneOf(random, STYLES);
   const style = easy ? easyStyle(picked) : picked;
@@ -991,7 +997,7 @@ export function generateLick(
   const tonic = pool.find((n) => n.degree === 'R')!.note;
   const chord = `${tonic}7`;
   const beats = bars * BAR;
-  const { lines, cells } = tab(notes, beats);
+  const { lines, cells } = tab(notes, beats, strings);
   return {
     style: style.name,
     form,

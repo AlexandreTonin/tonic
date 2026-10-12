@@ -1,6 +1,8 @@
 import { ToneMenu } from '@/components/audio/tone-select';
 import { ChordDiagram } from '@/components/chord-diagram/chord-diagram';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import { TuningMenu } from '@/components/fretboard/tuning-menu';
+import { useTuning } from '@/hooks/use-tuning';
 import { LABEL_NAMES } from '@/lib/labels';
 import { LinkRow, Related } from '@/components/theory/related';
 import {
@@ -23,7 +25,7 @@ import { Label } from '@/components/ui/label';
 import { MenuButton } from '@/components/ui/menu-button';
 import { useProgressionPlayer } from '@/hooks/use-progression-player';
 import { grooveFor, type Track, TRACK_LABELS, TRACKS } from '@/lib/backing';
-import type { HarmonicFunction } from '@/lib/theory/core';
+import { type HarmonicFunction, TUNINGS } from '@/lib/theory/core';
 import {
   getFretboard,
   getProgression,
@@ -61,12 +63,13 @@ export function ProgressionPage() {
   const setSearch = (patch: Partial<typeof search>) =>
     navigate({ to: '.', search: { ...search, ...patch }, replace: true });
 
+  const [tuning] = useTuning();
   const progression = useMemo(
     () =>
       PROGRESSIONS.some((p) => p.id === id)
-        ? getProgression(id, root)
+        ? getProgression(id, root, tuning)
         : undefined,
-    [id, root],
+    [id, root, tuning],
   );
   const bars = progression?.bars ?? [];
 
@@ -106,10 +109,11 @@ export function ProgressionPage() {
         item: `scale:${scale.id}`,
         root: scale.root,
         labelMode: labels,
+        tuning,
         frets: FRETS,
         highlight: bar.symbol,
       }),
-    [scale, bar, labels],
+    [scale, bar, labels, tuning],
   );
 
   if (!progression) {
@@ -259,6 +263,7 @@ export function ProgressionPage() {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+            <TuningMenu />
             <ToneMenu />
           </div>
         </div>
@@ -326,6 +331,7 @@ export function ProgressionPage() {
             details={`${progression.name} em ${keyName} · compasso ${Math.min(current, bars.length - 1) + 1} (${bar.degree}) · Rótulo: ${LABEL_NAMES[labels]}`}
             positions={positions}
             frets={FRETS}
+            strings={TUNINGS[tuning].length}
             label={`${scale.name} de ${scale.root} com as notas de ${bar.symbol} destacadas`}
           />
         </div>

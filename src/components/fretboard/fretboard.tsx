@@ -2,7 +2,7 @@ import { DOT_STYLE } from '@/components/fretboard/dot-style';
 import type { Barre, FretPosition } from '@/lib/theory/core';
 import { cn } from '@/lib/utils';
 
-const STRINGS = 6;
+const DEFAULT_STRINGS = 6;
 const OPEN_W = 40;
 const FRET_W = 56;
 const STRING_GAP = 30;
@@ -22,6 +22,7 @@ type FretboardProps = {
   label: string;
   barre?: Barre | null;
   activeMidi?: number | null;
+  strings?: number;
   className?: string;
 };
 
@@ -31,12 +32,13 @@ export function Fretboard({
   label,
   barre,
   activeMidi,
+  strings = DEFAULT_STRINGS,
   className,
 }: FretboardProps) {
   const width = OPEN_W + frets * FRET_W + 8;
-  const boardBottom = stringY(STRINGS);
+  const boardBottom = stringY(strings);
   const height = boardBottom + BOTTOM;
-  const midY = (stringY(3) + stringY(4)) / 2;
+  const midY = (stringY(1) + boardBottom) / 2;
   const inlays = Array.from({ length: frets }, (_, i) => i + 1);
 
   return (
@@ -59,8 +61,8 @@ export function Fretboard({
             />
           ) : DOUBLE_INLAYS.includes(f) ? (
             <g key={f} fill="var(--fret-wire)">
-              <circle cx={fretX(f)} cy={(stringY(2) + stringY(3)) / 2} r={4} />
-              <circle cx={fretX(f)} cy={(stringY(4) + stringY(5)) / 2} r={4} />
+              <circle cx={fretX(f)} cy={midY - STRING_GAP} r={4} />
+              <circle cx={fretX(f)} cy={midY + STRING_GAP} r={4} />
             </g>
           ) : null,
         )}
@@ -85,7 +87,7 @@ export function Fretboard({
           strokeWidth={3}
         />
 
-        {Array.from({ length: STRINGS }, (_, i) => i + 1).map((s) => (
+        {Array.from({ length: strings }, (_, i) => i + 1).map((s) => (
           <line
             key={s}
             x1={OPEN_W}

@@ -4,6 +4,11 @@ export const TUNINGS: Record<string, string[]> = {
   standard: ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'],
   'drop-d': ['D2', 'A2', 'D3', 'G3', 'B3', 'E4'],
   'half-step-down': ['Eb2', 'Ab2', 'Db3', 'Gb3', 'Bb3', 'Eb4'],
+  dadgad: ['D2', 'A2', 'D3', 'G3', 'A3', 'D4'],
+  'open-g': ['D2', 'G2', 'D3', 'G3', 'B3', 'D4'],
+  'open-d': ['D2', 'A2', 'D3', 'F#3', 'A3', 'D4'],
+  'seven-string': ['B1', 'E2', 'A2', 'D3', 'G3', 'B3', 'E4'],
+  bass: ['E1', 'A1', 'D2', 'G2'],
 };
 
 export const LABEL_MODES = ['notes', 'intervals', 'degrees'] as const;
@@ -245,7 +250,7 @@ export function chordVoicings(input: VoicingInput): Voicing[] {
     const fretted = frets.filter((f): f is number => f !== null && f > 0);
     const minFret = Math.min(...fretted);
     const maxFret = Math.max(0, ...fretted);
-    
+
     const fingers =
       fretted.filter((f) => f > minFret).length + (fretted.length ? 1 : 0);
     if (fingers > 4) return;
