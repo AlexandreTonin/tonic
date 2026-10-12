@@ -37,6 +37,7 @@ import {
   POSITION_COUNT,
   romanNumeral,
   sameNote,
+  smoothVoicings,
   samePitches,
   scaleOctaveMidis,
   scalePositionFrets,
@@ -262,6 +263,7 @@ export function getCustomProgression(
   mode: 'major' | 'minor',
   root: string,
   tuning?: string,
+  smooth?: boolean,
 ) {
   return buildProgression(
     {
@@ -274,6 +276,7 @@ export function getCustomProgression(
     },
     root,
     tuning,
+    smooth,
   );
 }
 
@@ -353,13 +356,23 @@ export function progressionSubstitutions(
     }));
 }
 
-export function getProgression(id: string, root: string, tuning?: string) {
+export function getProgression(
+  id: string,
+  root: string,
+  tuning?: string,
+  smooth?: boolean,
+) {
   const def = findProgression(id);
   if (!def) throw new Error(`Unknown progression ${id}`);
-  return buildProgression(def, root, tuning);
+  return buildProgression(def, root, tuning, smooth);
 }
 
-function buildProgression(def: ProgressionDef, root: string, tuning?: string) {
+function buildProgression(
+  def: ProgressionDef,
+  root: string,
+  tuning?: string,
+  smooth = false,
+) {
   const { id } = def;
   const key = withoutDoubleSharps(root, (r) =>
     spellScale(r, def.mode === 'major' ? 'major' : 'aeolian'),
@@ -377,6 +390,10 @@ function buildProgression(def: ProgressionDef, root: string, tuning?: string) {
       chord: getChord(type.id, degreeRoot(key.root, degree)),
     };
   });
+  const options = chords.map(({ chord }) =>
+    getChordVoicings(chord.id, { root: chord.root, tuning }),
+  );
+  const voicings = smooth ? smoothVoicings(options) : options.map((o) => o[0]);
   return {
     id,
     name: def.name,
@@ -399,8 +416,7 @@ function buildProgression(def: ProgressionDef, root: string, tuning?: string) {
         notes: chord.notes,
         intervals: chord.intervals,
         function: harmonicFunction(degree, chord.root, chord.id, next.root),
-        voicing:
-          getChordVoicings(chord.id, { root: chord.root, tuning })[0] ?? null,
+        voicing: voicings[i] ?? null,
         scale: scale ? scaleRef(scale.mode.id, chord.root) : null,
       };
     }),

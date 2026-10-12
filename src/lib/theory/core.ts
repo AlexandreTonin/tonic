@@ -607,3 +607,36 @@ export function chordScale<T extends { notes: string[] }>(
       undefined,
     );
 }
+
+const MUTE_CHANGE_COST = 3;
+
+export function voicingDistance(a: Voicing, b: Voicing) {
+  return a.frets.reduce<number>((cost, fret, i) => {
+    const other = b.frets[i];
+    if (fret === null && other === null) return cost;
+    if (fret === null || other === null) return cost + MUTE_CHANGE_COST;
+    return cost + Math.abs(fret - other);
+  }, 0);
+}
+
+export function smoothVoicings(options: Voicing[][]): Voicing[] {
+  if (options.some((o) => !o.length)) return options.map((o) => o[0]);
+  let costs = options[0].map(() => 0);
+  const back: number[][] = [];
+  for (let i = 1; i < options.length; i++) {
+    const step = options[i].map((v) =>
+      options[i - 1]
+        .map((u, j) => ({ cost: costs[j] + voicingDistance(u, v), from: j }))
+        .reduce((a, b) => (b.cost < a.cost ? b : a)),
+    );
+    costs = step.map((s) => s.cost);
+    back.push(step.map((s) => s.from));
+  }
+  let at = costs.indexOf(Math.min(...costs));
+  const path = [at];
+  for (let i = back.length - 1; i >= 0; i--) {
+    at = back[i][at];
+    path.unshift(at);
+  }
+  return path.map((k, i) => options[i][k]);
+}
