@@ -54,6 +54,11 @@ export const PAGES = {
     description:
       'Treino de ouvido para guitarra: reconheça intervalos, acordes, escalas e graus de uma progressão, com placar salvo no navegador.',
   },
+  harmonicQuiz: {
+    title: 'Tons e graus',
+    description:
+      'Quiz de campo harmônico: acordes de cada grau, grau de cada acorde e tons relativos, com placar salvo no navegador.',
+  },
   metronome: {
     title: 'Metrônomo',
     description:
