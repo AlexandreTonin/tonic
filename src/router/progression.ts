@@ -22,7 +22,9 @@ const PROGRESSION_DEFAULTS = {
   strums: 1,
   mode: 'major',
   chords: 'I,VIm,IV,V',
+  shapes: 'first',
 } as const;
+const PROGRESSION_SHAPES = ['first', 'smooth'] as const;
 const PROGRESSION_MODES = ['major', 'minor'] as const;
 const CHORDS = /^[#b]?[IV]{1,3}[^,]{0,8}(,[#b]?[IV]{1,3}[^,]{0,8}){0,31}$/;
 
@@ -50,6 +52,11 @@ export const progressionRoute = createRoute({
       ),
       strums: strums ?? PROGRESSION_DEFAULTS.strums,
       mode: pick(search.mode, PROGRESSION_MODES, PROGRESSION_DEFAULTS.mode),
+      shapes: pick(
+        search.shapes,
+        PROGRESSION_SHAPES,
+        PROGRESSION_DEFAULTS.shapes,
+      ),
       chords: CHORDS.test(String(search.chords ?? ''))
         ? String(search.chords)
         : PROGRESSION_DEFAULTS.chords,

@@ -27,7 +27,11 @@ import { Label } from '@/components/ui/label';
 import { MenuButton } from '@/components/ui/menu-button';
 import { useProgressionPlayer } from '@/hooks/use-progression-player';
 import { grooveFor, type Track, TRACK_LABELS, TRACKS } from '@/lib/backing';
-import { type HarmonicFunction, TUNINGS } from '@/lib/theory/core';
+import {
+  type HarmonicFunction,
+  TUNINGS,
+  voicingDistance,
+} from '@/lib/theory/core';
 import {
   getFretboard,
   CUSTOM_PROGRESSION,
@@ -56,6 +60,7 @@ const FUNCTIONS: Record<HarmonicFunction, string> = {
   'secondary-dominant': 'Dominante secundária',
 };
 const SCALE_MODES = { key: 'Do tom', chord: 'Por acorde' } as const;
+const SHAPE_MODES = { first: 'Primeiras', smooth: 'Mais próximas' } as const;
 const SCALE_MODE_IDS = Object.keys(SCALE_MODES) as (keyof typeof SCALE_MODES)[];
 
 const uniqueBy = <T,>(items: T[], key: (item: T) => string) => [
@@ -65,7 +70,8 @@ const uniqueBy = <T,>(items: T[], key: (item: T) => string) => [
 export function ProgressionPage() {
   const { id } = route.useParams();
   const search = route.useSearch();
-  const { root, labels, bpm, scales, strums, mode, chords } = search;
+  const { root, labels, bpm, scales, strums, mode, chords, shapes } = search;
+  const smooth = shapes === 'smooth';
   const custom = id === CUSTOM_PROGRESSION;
   const customChords = useMemo(() => chords.split(','), [chords]);
   const navigate = route.useNavigate();
@@ -77,11 +83,11 @@ export function ProgressionPage() {
   const progression = useMemo(
     () =>
       custom
-        ? getCustomProgression(customChords, mode, root, tuning)
+        ? getCustomProgression(customChords, mode, root, tuning, smooth)
         : PROGRESSIONS.some((p) => p.id === id)
-          ? getProgression(id, root, tuning)
+          ? getProgression(id, root, tuning, smooth)
           : undefined,
-    [custom, customChords, mode, id, root, tuning],
+    [custom, customChords, mode, id, root, tuning, smooth],
   );
   const bars = progression?.bars ?? [];
 
@@ -145,6 +151,10 @@ export function ProgressionPage() {
     );
   }
 
+  const movement = bars.reduce((sum, b, i) => {
+    const next = bars[i + 1]?.voicing;
+    return b.voicing && next ? sum + voicingDistance(b.voicing, next) : sum;
+  }, 0);
   const keyName = `${progression.root} ${progression.mode === 'major' ? 'maior' : 'menor'}`;
 
   return (
@@ -171,7 +181,10 @@ export function ProgressionPage() {
             <span>
               Escala: {progression.scale.name} de {progression.scale.root}
             </span>
-            <span>{progression.bars.length} compassos</span>
+            <span>
+              {progression.bars.length} compassos · movimento entre formas:{' '}
+              {movement} casas
+            </span>
           </div>
         </div>
       </div>
@@ -214,6 +227,14 @@ export function ProgressionPage() {
 
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <ChoiceTabs
+              id="progression-shapes"
+              label="Formas"
+              options={['first', 'smooth'] as const}
+              value={shapes}
+              onChange={(shapes) => setSearch({ shapes })}
+              format={(s) => SHAPE_MODES[s]}
+            />
             <ChoiceTabs
               id="progression-strums"
               label="Batidas por compasso"
