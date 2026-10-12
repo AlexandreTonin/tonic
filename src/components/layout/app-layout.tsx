@@ -1,5 +1,6 @@
 import { CommandPalette } from '@/components/layout/command-palette';
 import { GithubIcon } from '@/components/layout/github-icon';
+import { PracticeTimer } from '@/components/layout/practice-timer';
 import { ShortcutsDialog } from '@/components/layout/shortcuts-dialog';
 import {
   APP_ICON as AppIcon,
@@ -23,6 +24,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { applyPageMeta } from '@/lib/page-meta';
+import { movePractice } from '@/lib/practice-log';
 import { Link, Outlet, useLocation, useMatches } from '@tanstack/react-router';
 import { Coffee, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -51,6 +53,9 @@ export function AppLayout() {
   useEffect(() => {
     applyPageMeta({ title, description, noindex, pathname });
   }, [title, description, noindex, pathname]);
+  useEffect(() => {
+    movePractice(pathname, title ?? 'Tonic');
+  }, [pathname, title]);
   const [searching, setSearching] = useState(false);
   const isActive = (to: string) =>
     to === '/' ? pathname === '/' : pathname.startsWith(to);
@@ -75,6 +80,7 @@ export function AppLayout() {
             Buscar
             <kbd className="ml-auto font-sans text-xs">Ctrl K</kbd>
           </button>
+          <PracticeTimer path={pathname} title={title ?? 'Tonic'} />
         </SidebarHeader>
         <SidebarContent>
           {NAV.map((group, i) => (

@@ -74,6 +74,11 @@ export const PAGES = {
     description:
       'Escolha as notas e descubra quais escalas contêm todas elas, da mais justa para a mais ampla, com link para cada escala no braço.',
   },
+  practiceLog: {
+    title: 'Diário de prática',
+    description:
+      'Diário de prática de guitarra: tempo por dia e por tela, total da semana e sequência de dias, salvo no navegador.',
+  },
   metronome: {
     title: 'Metrônomo',
     description:
