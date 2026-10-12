@@ -71,6 +71,7 @@ O app abre em `http://localhost:5173`.
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Checagem de tipos |
 | `npm run format` | Prettier |
+| `npm test` | Testes unitários da teoria (Vitest) |
 
 ### Publicando
 

@@ -31,10 +31,6 @@ package-lock.json
 *.tsbuildinfo
 
 # File formats
-*.test.jsx
-*.test.js
-*.test.tsx
-*.test.ts
 *.ttf
 *.eot
 *.woff
