@@ -28,6 +28,7 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 - **Notas no braço**: encontre no braço a nota pedida ou diga qual nota está na casa marcada, escolhendo cordas e região. Sequência, acertos, precisão e melhor tempo salvos no navegador.
 - **Ouvido**: reconheça intervalos (subindo, descendo ou juntos), tipos de acorde, escalas e graus do campo harmônico maior em tônica sorteada. Escolha quais opções entram no sorteio; placar por exercício salvo no navegador.
 - **Tons e graus**: quiz de campo harmônico maior em tríades ou tétrades (acorde de cada grau, grau de cada acorde) e tons relativos, com placar salvo no navegador.
+- **Rotina de estudo**: rotina do dia (ou sorteada) de 15 a 60 minutos com técnica, escala, licks, ritmo e treino de ouvido. Cada bloco abre a tela já configurada, e uma barra no topo acompanha o timer em qualquer tela, com aviso sonoro na troca de bloco.
 - **Diário de prática**: botão "Iniciar prática" na barra lateral conta o tempo por tela enquanto você navega. Tempo por dia, últimos 7 dias, sequência de dias, tempo por tela, exportar e importar JSON. Tudo no navegador.
 
 **Ferramentas**
