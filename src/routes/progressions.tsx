@@ -1,6 +1,7 @@
 import { ToneMenu } from '@/components/audio/tone-select';
 import { ChordDiagram } from '@/components/chord-diagram/chord-diagram';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
+import { CapoMenu } from '@/components/fretboard/capo-menu';
 import { TuningMenu } from '@/components/fretboard/tuning-menu';
 import { useTuning } from '@/hooks/use-tuning';
 import { LABEL_NAMES } from '@/lib/labels';
@@ -29,6 +30,7 @@ import { useProgressionPlayer } from '@/hooks/use-progression-player';
 import { useShortcuts } from '@/hooks/use-shortcuts';
 import { stepRoot } from '@/lib/roots';
 import { grooveFor, type Track, TRACK_LABELS, TRACKS } from '@/lib/backing';
+import { shapeRoot } from '@/lib/roots';
 import {
   type HarmonicFunction,
   TUNINGS,
@@ -72,7 +74,8 @@ const uniqueBy = <T,>(items: T[], key: (item: T) => string) => [
 export function ProgressionPage() {
   const { id } = route.useParams();
   const search = route.useSearch();
-  const { root, labels, bpm, scales, strums, mode, chords, shapes } = search;
+  const { root, labels, bpm, scales, strums, mode, chords, shapes, capo } =
+    search;
   const smooth = shapes === 'smooth';
   const custom = id === CUSTOM_PROGRESSION;
   const customChords = useMemo(() => chords.split(','), [chords]);
@@ -85,11 +88,11 @@ export function ProgressionPage() {
   const progression = useMemo(
     () =>
       custom
-        ? getCustomProgression(customChords, mode, root, tuning, smooth)
+        ? getCustomProgression(customChords, mode, root, tuning, smooth, capo)
         : PROGRESSIONS.some((p) => p.id === id)
-          ? getProgression(id, root, tuning, smooth)
+          ? getProgression(id, root, tuning, smooth, capo)
           : undefined,
-    [custom, customChords, mode, id, root, tuning, smooth],
+    [custom, customChords, mode, id, root, tuning, smooth, capo],
   );
   const bars = progression?.bars ?? [];
 
@@ -335,6 +338,7 @@ export function ProgressionPage() {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+            <CapoMenu value={capo} onChange={(capo) => setSearch({ capo })} />
             <TuningMenu />
             <ToneMenu />
           </div>
@@ -365,6 +369,12 @@ export function ProgressionPage() {
                 <span className="text-sm text-muted-foreground">
                   {FUNCTIONS[b.function]}
                 </span>
+                {capo > 0 && b.voicing && (
+                  <span className="text-sm text-muted-foreground">
+                    Forma de {shapeRoot(b.root, capo)}
+                    {b.symbol.slice(b.root.length)}
+                  </span>
+                )}
                 {b.voicing && (
                   <span className="mt-1 hidden sm:block">
                     <ChordDiagram voicing={b.voicing} label={b.symbol} />

@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router';
 import { rootRoute } from './root';
 import {
+  capoSearch,
   PROGRESSION_STRUMS,
   pick,
   theorySearch,
@@ -23,6 +24,7 @@ const PROGRESSION_DEFAULTS = {
   mode: 'major',
   chords: 'I,VIm,IV,V',
   shapes: 'first',
+  capo: 0,
 } as const;
 const PROGRESSION_SHAPES = ['first', 'smooth'] as const;
 const PROGRESSION_MODES = ['major', 'minor'] as const;
@@ -60,6 +62,7 @@ export const progressionRoute = createRoute({
       chords: CHORDS.test(String(search.chords ?? ''))
         ? String(search.chords)
         : PROGRESSION_DEFAULTS.chords,
+      capo: capoSearch(search),
     };
   },
   search: { middlewares: [stripSearchParams(PROGRESSION_DEFAULTS)] },

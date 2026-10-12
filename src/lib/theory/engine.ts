@@ -57,6 +57,7 @@ export type ItemType = (typeof ITEM_TYPES)[number];
 export interface VoicingsQuery {
   root: string;
   tuning?: string;
+  capo?: number;
   labelMode?: 'notes' | 'intervals';
 }
 
@@ -139,7 +140,9 @@ export function getChordVoicings(id: string, query: VoicingsQuery) {
     root: chord.root,
     notes: chord.notes,
     intervals: chord.intervals,
-    tuning: tuningOrThrow(query.tuning ?? 'standard'),
+    tuning: tuningOrThrow(query.tuning ?? 'standard').map((note) =>
+      Note.transpose(note, Interval.fromSemitones(query.capo ?? 0)),
+    ),
     labelMode: query.labelMode ?? 'notes',
   });
 }
@@ -264,6 +267,7 @@ export function getCustomProgression(
   root: string,
   tuning?: string,
   smooth?: boolean,
+  capo?: number,
 ) {
   return buildProgression(
     {
@@ -277,6 +281,7 @@ export function getCustomProgression(
     root,
     tuning,
     smooth,
+    capo,
   );
 }
 
@@ -361,10 +366,11 @@ export function getProgression(
   root: string,
   tuning?: string,
   smooth?: boolean,
+  capo?: number,
 ) {
   const def = findProgression(id);
   if (!def) throw new Error(`Unknown progression ${id}`);
-  return buildProgression(def, root, tuning, smooth);
+  return buildProgression(def, root, tuning, smooth, capo);
 }
 
 function buildProgression(
@@ -372,6 +378,7 @@ function buildProgression(
   root: string,
   tuning?: string,
   smooth = false,
+  capo?: number,
 ) {
   const { id } = def;
   const key = withoutDoubleSharps(root, (r) =>
@@ -391,7 +398,7 @@ function buildProgression(
     };
   });
   const options = chords.map(({ chord }) =>
-    getChordVoicings(chord.id, { root: chord.root, tuning }),
+    getChordVoicings(chord.id, { root: chord.root, tuning, capo }),
   );
   const voicings = smooth ? smoothVoicings(options) : options.map((o) => o[0]);
   return {
