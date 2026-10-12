@@ -15,6 +15,7 @@ import { intervalsRoute } from './intervals';
 import { metronomeRoute } from './metronome';
 import { placeholderRoute } from './placeholder';
 import { practiceLogRoute } from './practice-log';
+import { practiceRoutineRoute } from './practice-routine';
 import { progressionRoute } from './progression';
 import { progressionsRoute } from './progressions';
 import { rhythmRoute } from './rhythm';
@@ -49,6 +50,7 @@ export const router = createRouter({
     fretboardTrainerRoute,
     earTrainingRoute,
     harmonicQuizRoute,
+    practiceRoutineRoute,
     practiceLogRoute,
     metronomeRoute,
     tunerRoute,

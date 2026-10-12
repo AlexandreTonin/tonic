@@ -1,6 +1,7 @@
 import { CommandPalette } from '@/components/layout/command-palette';
 import { GithubIcon } from '@/components/layout/github-icon';
 import { PracticeTimer } from '@/components/layout/practice-timer';
+import { RoutineBanner } from '@/components/layout/routine-banner';
 import { ShortcutsDialog } from '@/components/layout/shortcuts-dialog';
 import {
   APP_ICON as AppIcon,
@@ -160,6 +161,7 @@ export function AppLayout() {
             <Search className="size-4" />
           </button>
         </header>
+        <RoutineBanner />
         <main className="min-w-0 flex-1 p-6 md:p-10">
           <Outlet />
         </main>

@@ -79,6 +79,11 @@ export const PAGES = {
     description:
       'Diário de prática de guitarra: tempo por dia e por tela, total da semana e sequência de dias, salvo no navegador.',
   },
+  practiceRoutine: {
+    title: 'Rotina de estudo',
+    description:
+      'Rotina diária de guitarra com técnica, escala, licks, ritmo e treino de ouvido, com timer por bloco.',
+  },
   metronome: {
     title: 'Metrônomo',
     description:
