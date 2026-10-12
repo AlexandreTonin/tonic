@@ -25,7 +25,7 @@ export function PracticeTimer({
         onClick={() => (running ? stopPractice() : startPractice(path, title))}
         className={cn(
           'flex h-8 flex-1 items-center gap-2 rounded-xl border px-2 text-sm transition-colors hover:bg-muted',
-          running ? 'border-highlight' : 'text-muted-foreground',
+          running && 'border-highlight',
         )}
       >
         {running ? <Square className="size-4" /> : <Timer className="size-4" />}
@@ -39,7 +39,7 @@ export function PracticeTimer({
       </button>
       <Link
         to="/practice-log"
-        className="rounded-xl px-2 py-1.5 text-xs text-muted-foreground hover:bg-muted"
+        className="rounded-xl px-2 py-1.5 text-xs text-sidebar-foreground hover:bg-muted"
       >
         Diário
       </Link>
