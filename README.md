@@ -34,6 +34,7 @@ https://github.com/user-attachments/assets/d98ee921-c729-4a3d-b2a0-e65e8d1738c3
 - **Metrônomo**: acentos por tempo, compassos de 2/4 a 12/8, subdivisões, contagem, gap click, speed trainer, timer, atalhos de teclado e predefinições salvas no navegador.
 - **Afinador**: pelo microfone, com nota, desvio em cents e a corda mais próxima da afinação escolhida. O áudio é analisado no navegador e não sai dele.
 - **Identificador de acordes**: marque as casas no braço e veja o nome do acorde, inversões e outros nomes possíveis, com link para o acorde na biblioteca. As casas ficam no link.
+- **Identificador de escalas**: escolha notas e veja as escalas da biblioteca que contêm todas elas, da mais justa para a mais ampla, com link para cada uma.
 
 **Em todas as telas com braço**
 
