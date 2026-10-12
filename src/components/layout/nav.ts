@@ -12,6 +12,7 @@ import {
   Puzzle,
   Repeat,
   ScanSearch,
+  SearchCode,
   Ruler,
   Target,
   Timer,
@@ -54,6 +55,7 @@ export const NAV: NavGroup[] = [
       { to: '/metronome', label: 'Metrônomo', icon: Timer },
       { to: '/tuner', label: 'Afinador', icon: AudioLines },
       { to: '/chord-finder', label: 'Identificar acorde', icon: ScanSearch },
+      { to: '/scale-finder', label: 'Identificar escala', icon: SearchCode },
     ],
   },
 ];
