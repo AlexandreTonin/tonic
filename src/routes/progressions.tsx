@@ -349,7 +349,6 @@ export function ProgressionPage() {
               <button
                 type="button"
                 aria-pressed={active}
-                aria-label={`Compasso ${i + 1}: ${b.symbol}, ${FUNCTIONS[b.function]}`}
                 onClick={() => setSelected(i)}
                 className={cn(
                   'flex w-full flex-col gap-1 rounded-xl border p-3 text-left transition-colors hover:bg-muted focus-visible:border-ring focus-visible:outline-none',

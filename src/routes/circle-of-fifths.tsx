@@ -233,7 +233,7 @@ function Wedge({
     <g
       role="button"
       tabIndex={0}
-      aria-label={cell ? `${label}, ${cell.degree} do tom` : label}
+      aria-label={`${cell?.symbol ?? name}: ${cell ? `${label}, ${cell.degree} do tom` : label}`}
       aria-pressed={tonic}
       onClick={onSelect}
       onKeyDown={onKeyDown}
