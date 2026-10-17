@@ -3,6 +3,7 @@ import { ExportButtons } from '@/components/fretboard/export-buttons';
 import { Fretboard } from '@/components/fretboard/fretboard';
 import { PrintableFretboard } from '@/components/fretboard/printable-fretboard';
 import { TabSvg } from '@/components/fretboard/tab-svg';
+import { TabText } from '@/components/fretboard/tab-text';
 import { TuningMenu } from '@/components/fretboard/tuning-menu';
 import { useTuning } from '@/hooks/use-tuning';
 import { LABEL_NAMES } from '@/lib/labels';
@@ -13,6 +14,7 @@ import {
   PositionTabs,
   RootTabs,
 } from '@/components/theory/theory-controls';
+import { HorizontalRun } from '@/components/theory/horizontal-run';
 import { ViewToggle } from '@/components/theory/view-toggle';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,6 +55,7 @@ import {
   getScale,
   LICK_SCALES,
   listScales,
+  RUN_SCALES,
 } from '@/lib/theory/engine';
 import {
   beatLabel,
@@ -122,6 +125,8 @@ export function ScalePage() {
     style: lickStyle,
     easy,
     span,
+    run,
+    direction,
   } = search;
   const navigate = route.useNavigate();
 
@@ -221,6 +226,7 @@ export function ScalePage() {
   const earTraining = lickView === 'ear';
   const [revealed, setRevealed] = useState<string>();
   const [lickOnly, setLickOnly] = useState(false);
+  const [runActive, setRunActive] = useState(false);
   const [favorites, setFavorites] = useState(loadFavorites);
   const lickExport = useRef<HTMLDivElement>(null);
   const cues = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -361,8 +367,9 @@ export function ScalePage() {
   const playLick = (
     l: Lick,
     { bpm = lickBpm, loop = lickLoop, count = countIn, step = accelerate } = {},
-  ) =>
-    guitar.sequence(
+  ) => {
+    setRunActive(false);
+    return guitar.sequence(
       l.notes.map((n) => ({
         ...n,
         velocity: n.technique ? LEGATO_VELOCITY : undefined,
@@ -379,10 +386,14 @@ export function ScalePage() {
         },
       },
     );
+  };
 
-  const lickPlaying = withBacking ? backing.playing : guitar.sequencing;
+  const lickPlaying = withBacking
+    ? backing.playing
+    : guitar.sequencing && !runActive;
   const replay = (options: Parameters<typeof playLick>[1]) => {
-    if (guitar.sequencing && currentLick) playLick(currentLick, options);
+    if (guitar.sequencing && !runActive && currentLick)
+      playLick(currentLick, options);
   };
 
   const stopLoop = () => {
@@ -392,6 +403,7 @@ export function ScalePage() {
     cues.current = [];
     setPlayingMidi(null);
     setPlayingNote(null);
+    setRunActive(false);
   };
 
   const startLick = (l: Lick) => {
@@ -534,6 +546,24 @@ export function ScalePage() {
           label={`Braço com ${scale.root} ${scale.name}${activePosition ? `, posição ${activePosition}` : ''}`}
         />
       </div>
+
+      {RUN_SCALES.includes(scaleId) && (
+        <HorizontalRun
+          scaleId={scaleId}
+          root={root}
+          start={run}
+          direction={direction}
+          labelMode={labelMode}
+          tuning={tuning}
+          guitar={guitar}
+          active={runActive}
+          onPlay={() => {
+            stopLoop();
+            setRunActive(true);
+          }}
+          onChange={setSearch}
+        />
+      )}
 
       {LICK_SCALES.includes(scaleId) && (
         <section className="flex flex-col gap-6">
@@ -873,32 +903,17 @@ export function ScalePage() {
                       />
                     </div>
                   </div>
-                  <pre className="w-fit max-w-full overflow-x-auto rounded-xl border p-4 font-mono text-sm leading-relaxed">
-                    {currentLick.tab.map((line, s) => {
-                      const cell =
-                        playingNote !== null &&
-                        currentLick.notes[playingNote]?.string === s + 1
-                          ? currentLick.cells[playingNote]
-                          : undefined;
-                      const end = cell ? cell.column + cell.width : 0;
-                      return (
-                        <span key={s}>
-                          {cell ? (
-                            <>
-                              {line.slice(0, cell.column)}
-                              <mark className="rounded-sm bg-highlight text-highlight-foreground">
-                                {line.slice(cell.column, end)}
-                              </mark>
-                              {line.slice(end)}
-                            </>
-                          ) : (
-                            line
-                          )}
-                          {'\n'}
-                        </span>
-                      );
-                    })}
-                  </pre>
+                  <TabText
+                    lines={currentLick.tab}
+                    active={
+                      playingNote !== null && currentLick.notes[playingNote]
+                        ? {
+                            string: currentLick.notes[playingNote].string,
+                            ...currentLick.cells[playingNote],
+                          }
+                        : undefined
+                    }
+                  />
                 </div>
               )}
             </div>
