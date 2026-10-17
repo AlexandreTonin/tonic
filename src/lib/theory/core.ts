@@ -349,6 +349,54 @@ export function pentatonicBox(
   return frets.map(([lo, hi]) => ({ lo: lo + shift, hi: hi + shift }));
 }
 
+export interface RunStep {
+  string: number;
+  fret: number;
+  midi: number;
+  index: number;
+}
+
+const RUN_PATTERN = [3, 2] as const;
+
+// climbs the neck string by string, 3 then 2 notes per string, until it lands
+// back on the starting pitch class on the top string
+export function horizontalRun(
+  chromas: number[],
+  start: number,
+  tuning: string[],
+): RunStep[] {
+  const open = openMidis(tuning);
+  const size = chromas.length;
+  const up = (pitch: number, chroma: number) =>
+    pitch + ((chroma - (pitch % 12) + 12) % 12 || 12);
+
+  const counts: number[] = open.map(
+    (_, s) => RUN_PATTERN[s % RUN_PATTERN.length],
+  );
+  const before = counts.slice(0, -1).reduce((a, b) => a + b, 0);
+  let total = before + 1;
+  while ((total - 1) % size) total++;
+  counts[counts.length - 1] = total - before;
+
+  let pitch = open[0] + ((chromas[start] - (open[0] % 12) + 12) % 12);
+  const steps: { idx: number; pitch: number; index: number }[] = [];
+  counts.forEach((count, idx) => {
+    for (let n = 0; n < count; n++) {
+      const index = (start + steps.length) % size;
+      if (steps.length) pitch = up(pitch, chromas[index]);
+      steps.push({ idx, pitch, index });
+    }
+  });
+
+  const shift = steps.some((s) => s.pitch < open[s.idx]) ? 12 : 0;
+  return steps.map(({ idx, pitch, index }) => ({
+    string: open.length - idx,
+    fret: pitch - open[idx] + shift,
+    midi: pitch + shift,
+    index,
+  }));
+}
+
 export function arpeggioBoxTemplate(
   root: string,
   arpeggio: Spelled,
