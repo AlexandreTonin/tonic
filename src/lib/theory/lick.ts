@@ -875,7 +875,19 @@ function describeBar(
   return `${entry} ${shape}${pauses}.${cliches} ${ending}`;
 }
 
-function tab(notes: Played[], beats: number, names: string[]) {
+export type TabNote = Pick<
+  LickNote,
+  | 'string'
+  | 'fret'
+  | 'start'
+  | 'duration'
+  | 'technique'
+  | 'bend'
+  | 'curl'
+  | 'vibrato'
+>;
+
+export function tab(notes: TabNote[], beats: number, names: string[]) {
   const lines = names.map(() => '');
   const cells: TabCell[] = [];
   const units = (b: number) => Math.round(b * 4);

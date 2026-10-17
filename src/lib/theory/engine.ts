@@ -12,6 +12,8 @@ import {
   findScale,
   type IntervalDef,
   type ProgressionDef,
+  RUN_DIRECTIONS,
+  type RunDirection,
   type ScaleDef,
 } from './catalog';
 import {
@@ -25,6 +27,7 @@ import {
   fretboardPositions,
   harmonicField,
   harmonicFunction,
+  horizontalRun,
   intervalLabel,
   openMidis,
   invertInterval,
@@ -48,7 +51,13 @@ import {
   withoutDoubleSharps,
   type LabelMode,
 } from './core';
-import { generateLick, type PoolNote, seededRandom } from './lick';
+import {
+  generateLick,
+  type PoolNote,
+  seededRandom,
+  tab,
+  type Technique,
+} from './lick';
 import { hitTimes, parseRhythm, rhythmFigures, scoreTaps } from './rhythm';
 
 export const ITEM_TYPES = ['scale', 'chord', 'arpeggio', 'interval'] as const;
@@ -730,6 +739,131 @@ export function getLick(
     seededRandom(seed),
     { ...options, climb: options?.span, strings: tabStringNames(tuning) },
   );
+}
+
+export const RUN_SCALES = BLUES_LICK_SCALES;
+export { RUN_DIRECTIONS, type RunDirection };
+const RUN_NOTE_BEATS = 0.5;
+const RUN_BAR_BEATS = 4;
+
+export interface RunNote {
+  string: number;
+  fret: number;
+  midi: number;
+  sound: number;
+  note: string;
+  degree: string;
+  blue?: boolean;
+  technique?: Technique;
+  start: number;
+  duration: number;
+}
+
+type RunPitch = Omit<RunNote, 'sound' | 'start' | 'duration' | 'technique'>;
+
+// a slide shifts the hand on every string that holds three or more notes
+const withSlides = (notes: RunPitch[], ascending: boolean) =>
+  notes.map((n, i) => {
+    let first = i;
+    while (first > 0 && notes[first - 1].string === n.string) first--;
+    let last = i;
+    while (last < notes.length - 1 && notes[last + 1].string === n.string)
+      last++;
+    if (last - first < 2) return { ...n };
+    const slide = ascending ? i === last : i === first + 1;
+    return slide
+      ? { ...n, technique: (ascending ? '/' : '\\') as Technique }
+      : { ...n };
+  });
+
+export function getHorizontalRun(
+  id: string,
+  root: string,
+  start: number,
+  direction: RunDirection = 'up',
+  tuningName = 'standard',
+) {
+  const def = findScale(id);
+  if (!def?.boxes || !RUN_SCALES.includes(id)) {
+    throw new Error(`No horizontal run for scale ${id}`);
+  }
+  const scale = getScale(id, root);
+  const tuning = tuningOrThrow(tuningName);
+  const blue = BLUE_NOTES[def.boxes];
+  const penta = scale.intervals.flatMap((d, i) =>
+    d === blue.degree ? [] : [i],
+  );
+  const blueIndex = scale.intervals.indexOf(blue.degree);
+  if (start < 1 || start > penta.length) {
+    throw new Error(`Invalid start degree ${start}`);
+  }
+
+  const steps = horizontalRun(
+    penta.map((i) => Note.chroma(scale.notes[i])),
+    start - 1,
+    tuning,
+  );
+  const ascending = steps.flatMap<RunPitch>((step, n) => {
+    const i = penta[step.index];
+    const note = {
+      string: step.string,
+      fret: step.fret,
+      midi: step.midi,
+      note: scale.notes[i],
+      degree: scale.intervals[i],
+    };
+    if (
+      blueIndex === -1 ||
+      note.degree !== blue.below ||
+      n === steps.length - 1
+    )
+      return [note];
+    return [
+      note,
+      {
+        ...note,
+        fret: note.fret + 1,
+        midi: note.midi + 1,
+        note: scale.notes[blueIndex],
+        degree: blue.degree,
+        blue: true,
+      },
+    ];
+  });
+
+  const up = withSlides(ascending, true);
+  const down = withSlides([...ascending].reverse(), false);
+  const sequence =
+    direction === 'up'
+      ? up
+      : direction === 'down'
+        ? down
+        : [...up, ...down.slice(1)];
+  const length = sequence.length * RUN_NOTE_BEATS;
+  const beats = Math.ceil(length / RUN_BAR_BEATS) * RUN_BAR_BEATS;
+  const notes: RunNote[] = sequence.map((n, i) => ({
+    ...n,
+    sound: n.midi,
+    start: i * RUN_NOTE_BEATS,
+    duration:
+      i === sequence.length - 1 ? beats - i * RUN_NOTE_BEATS : RUN_NOTE_BEATS,
+  }));
+  const { lines, cells } = tab(notes, beats, tabStringNames(tuning));
+  const frets = notes.map((n) => n.fret);
+  return {
+    root: scale.root,
+    name: scale.name,
+    starts: penta.map((i) => ({
+      note: scale.notes[i],
+      degree: scale.intervals[i],
+    })),
+    notes,
+    beats,
+    tab: lines,
+    cells,
+    lowFret: Math.min(...frets),
+    highFret: Math.max(...frets),
+  };
 }
 
 const CIRCLE_SIZE = 12;

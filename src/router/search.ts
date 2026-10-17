@@ -1,3 +1,4 @@
+import { RUN_DIRECTIONS } from '@/lib/theory/catalog';
 import { LICK_BARS, LICK_STYLES } from '@/lib/theory/lick';
 import type { SearchSchemaInput } from '@tanstack/react-router';
 
@@ -44,6 +45,7 @@ export type RawSearch = {
   direction?: string;
   strings?: string | number;
   capo?: number;
+  run?: number;
 } & SearchSchemaInput;
 
 const PITCH_CLASS = /^[A-G][#b]?$/;
@@ -83,3 +85,17 @@ export const CAPO_FRETS = [0, 1, 2, 3, 4, 5, 6, 7] as const;
 
 export const capoSearch = (search: RawSearch): number =>
   CAPO_FRETS.find((f) => f === Number(search.capo)) ?? 0;
+
+export const RUN_DEFAULTS = { run: 1, direction: 'up' } as const;
+const RUN_STARTS = 5;
+
+export const runSearch = (search: RawSearch) => {
+  const run = Number(search.run);
+  return {
+    run:
+      Number.isInteger(run) && run >= 1 && run <= RUN_STARTS
+        ? run
+        : RUN_DEFAULTS.run,
+    direction: pick(search.direction, RUN_DIRECTIONS, RUN_DEFAULTS.direction),
+  };
+};

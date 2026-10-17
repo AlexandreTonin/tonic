@@ -10,6 +10,8 @@ import {
   LICK_DEFAULTS,
   lickSearch,
   positionSearch,
+  RUN_DEFAULTS,
+  runSearch,
   theorySearch,
   THEORY_DEFAULTS,
   type RawSearch,
@@ -27,8 +29,15 @@ export const scaleRoute = createRoute({
     ...theorySearch(search),
     position: positionSearch(search),
     ...lickSearch(search),
+    ...runSearch(search),
   }),
   search: {
-    middlewares: [stripSearchParams({ ...THEORY_DEFAULTS, ...LICK_DEFAULTS })],
+    middlewares: [
+      stripSearchParams({
+        ...THEORY_DEFAULTS,
+        ...LICK_DEFAULTS,
+        ...RUN_DEFAULTS,
+      }),
+    ],
   },
 });

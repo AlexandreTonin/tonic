@@ -18,6 +18,9 @@ export interface ChordDef {
   category: string;
 }
 
+export const RUN_DIRECTIONS = ['up', 'down', 'both'] as const;
+export type RunDirection = (typeof RUN_DIRECTIONS)[number];
+
 export const PENTA = 'Pentatônicas e blues';
 const MAJOR_MODES = 'Modos da escala maior';
 const HARMONIC = 'Menor harmônica e seus modos';
